@@ -28,6 +28,13 @@ export default async function handler(req, res) {
     at: new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }),
   };
 
+  // Vercel 스크린샷 봇, 크롤러 등은 알림에서 뺍니다.
+  if (/HeadlessChrome|bot|crawler|spider|preview|vercel-screenshot/i.test(visit.ua)) {
+    console.log('BOT ' + JSON.stringify(visit));
+    res.status(204).end();
+    return;
+  }
+
   console.log('VISIT ' + JSON.stringify(visit));
 
   const text =
