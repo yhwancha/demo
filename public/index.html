@@ -1,0 +1,822 @@
+<!doctype html><html><head><meta charset=utf8><title>법인카드 관리 데모</title><meta name="robots" content="noindex,nofollow"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap">
+<style>
+:root{color-scheme:light;
+--bg:#F2F4F8;--panel:#FFFFFF;--ink:#191F28;--ink2:#4E5968;--muted:#6B7684;--faint:#8B95A1;--line:rgba(25,31,40,.08);--line2:rgba(25,31,40,.13);
+--accent:#3D6AF2;--accent-press:#2F57D6;--accent-soft:#EDF2FF;--accent-ink:#2B54D0;
+--amber:#A35C00;--amber-soft:#FFF3DF;--red:#D3343C;--red-soft:#FFECEC;
+--app-bg:#FFFFFF;--app-canvas:#F2F4F7;--app-ink:#191F28;--app-muted:#6B7684;--app-line:rgba(25,31,40,.08);--app-soft:#F2F4F7;--app-accent:#3D6AF2;--app-accent-soft:#EDF2FF;--app-amber:#A35C00;--app-amber-soft:#FFF3DF;--app-red:#D3343C;--app-red-soft:#FFECEC;
+--ease:cubic-bezier(.2,.7,.2,1);
+--font:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',system-ui,sans-serif;
+--display:var(--font);--body:var(--font);--mono:ui-monospace,'SF Mono',Menlo,monospace}
+*{box-sizing:border-box;min-width:0}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 var(--font);overflow-x:clip;word-break:keep-all;overflow-wrap:break-word;-webkit-font-smoothing:antialiased}
+::selection{background:rgba(61,106,242,.18)}
+button,input,select,textarea{font-family:inherit;color:inherit}
+button{-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+svg{flex-shrink:0}
+*{scrollbar-width:thin;scrollbar-color:rgba(25,31,40,.18) transparent}
+
+/* ── 상단 바 ── */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(255,255,255,.88);backdrop-filter:saturate(1.6) blur(18px);-webkit-backdrop-filter:saturate(1.6) blur(18px);border-bottom:1px solid var(--line)}
+.bar1{display:flex;align-items:center;gap:16px;padding:12px 24px}
+.brand{display:flex;align-items:center;gap:12px;flex:1}
+.mark{width:36px;height:36px;border-radius:11px;background:var(--accent);color:#fff;display:grid;place-items:center;flex-shrink:0}
+.brand b{display:block;font-size:16px;font-weight:700;letter-spacing:-.01em;line-height:1.3}
+.brand div>span{display:block;font-size:12px;color:var(--muted);line-height:1.4}
+.acts{display:flex;gap:4px;background:var(--bg);border-radius:999px;padding:4px;scrollbar-width:none}
+.acts::-webkit-scrollbar{display:none}
+.acts button{display:flex;align-items:center;gap:8px;border:0;background:transparent;color:var(--muted);border-radius:999px;padding:6px 16px 6px 6px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .2s var(--ease),color .2s var(--ease),box-shadow .2s var(--ease)}
+.acts button:hover{color:var(--ink)}
+.acts button i{font-style:normal;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:rgba(25,31,40,.07);font-size:12px;font-weight:700}
+.acts button[aria-selected=true]{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(25,31,40,.06),0 4px 12px rgba(25,31,40,.06)}
+.acts button[aria-selected=true] i{background:var(--accent);color:#fff}
+.pager{flex:1;display:flex;justify-content:flex-end;gap:8px;align-items:center}
+.pager button{height:38px;border:0;border-radius:999px;padding:0 16px;font-size:14px;font-weight:600;cursor:pointer;background:var(--bg);color:var(--ink);transition:background .2s var(--ease),transform .1s var(--ease)}
+.pager button:hover{background:#E8EBF0}
+.pager button:active{transform:scale(.97)}
+.pager #next{background:var(--accent);color:#fff}
+.pager #next:hover{background:var(--accent-press)}
+.pager #reset{background:transparent;color:var(--muted)}
+.pager #reset:hover{color:var(--ink);background:var(--bg)}
+.pager button:disabled{opacity:.35;cursor:default;transform:none}
+.pager .count{font-size:13px;color:var(--muted);min-width:44px;text-align:center;font-variant-numeric:tabular-nums}
+.nav{display:flex;gap:8px;padding:0 24px 12px;overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;display:flex;align-items:center;gap:8px;border:1px solid var(--line2);background:#fff;color:var(--ink2);border-radius:999px;padding:5px 14px 5px 5px;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;transition:background .2s var(--ease),border-color .2s var(--ease)}
+.chip:hover{border-color:rgba(25,31,40,.24)}
+.chip b{width:24px;height:24px;border-radius:50%;background:var(--bg);display:grid;place-items:center;font-size:12px;font-weight:700;color:var(--muted)}
+.chip .w{font-size:11px;color:var(--faint);margin-left:-2px}
+.chip[aria-current=true]{background:var(--accent-soft);border-color:transparent;color:var(--accent-ink);font-weight:600}
+.chip[aria-current=true] b{background:var(--accent);color:#fff}
+.chip[aria-current=true] .w{color:var(--accent-ink);opacity:.7}
+
+/* ── 본문 배치 ── */
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(380px,clamp(420px,36vw,560px));min-height:calc(100vh - var(--hdr,120px))}
+.stage{display:flex;flex-direction:column;align-items:center;gap:20px;padding:24px 24px 48px;background:linear-gradient(165deg,#EDF1FF 0%,#F2F0FD 50%,#F6F3FA 100%)}
+.ctx{width:100%;max-width:1040px;display:grid;gap:12px}
+.scn{margin:0;font-size:14px;color:var(--ink2);line-height:1.6}
+.scn b{display:inline-block;font-size:12px;font-weight:700;color:var(--accent-ink);background:#fff;border-radius:999px;padding:2px 10px;margin-right:8px;vertical-align:1px}
+.cast{display:flex;gap:8px;flex-wrap:wrap;align-items:stretch}
+.cast-l{font-size:12px;color:var(--muted);align-self:center;margin-right:4px;line-height:1.45}
+.who{display:flex;align-items:center;gap:10px;border:1px solid rgba(255,255,255,.9);border-radius:16px;padding:10px 14px 10px 10px;background:rgba(255,255,255,.62);color:var(--ink);font:inherit;font-size:12.5px;line-height:1.45;flex:1 1 200px;max-width:340px;text-align:left;cursor:pointer;transition:background .2s var(--ease),border-color .2s var(--ease),box-shadow .2s var(--ease)}
+.who:hover{background:#fff}
+.who .av{width:34px;height:34px;border-radius:50%;background:var(--accent-soft);color:var(--accent-ink);display:grid;place-items:center;font-size:12px;font-weight:700;flex-shrink:0;transition:background .2s var(--ease),color .2s var(--ease)}
+.who .wt{display:block}
+.who b{font-size:14px;font-weight:700}
+.who .r{color:var(--muted);margin-left:6px;font-size:12px}
+.who .st{color:var(--muted)}
+.who.on{background:#fff;border-color:var(--accent);box-shadow:0 0 0 3px rgba(61,106,242,.12)}
+.who.on .av{background:var(--accent);color:#fff}
+.who.on .st{color:var(--ink2)}
+div.who{cursor:default;background:#fff}
+div.who .av{background:var(--red-soft);color:var(--red)}
+.dev{flex:1;width:100%;display:flex;align-items:flex-start;justify-content:center}
+.dev>.phone,.dev>.pc{position:sticky;top:calc(var(--hdr,120px) + 20px)}
+.dev.enter>*{animation:rise .38s var(--ease) both}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes drop{from{opacity:0;transform:translateY(-14px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+
+/* ── 오른쪽 설명 ── */
+.spec{background:#fff;border-left:1px solid var(--line);padding:32px 32px 56px}
+.eyebrow{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.eyebrow>span:last-child{margin-left:auto;font-variant-numeric:tabular-nums}
+.pill{font-size:12px;border-radius:999px;padding:4px 10px;font-weight:600}
+.pill.a{background:var(--accent-soft);color:var(--accent-ink)}.pill.b{background:var(--bg);color:var(--ink2)}
+.spec h1{font-size:28px;line-height:1.3;letter-spacing:-.025em;margin:16px 0 8px;font-weight:700;text-wrap:balance}
+.spec .lead{font-size:16px;color:var(--ink2);line-height:1.7;margin:0 0 24px}
+.try{background:var(--accent-soft);border-radius:20px;padding:16px 18px 18px;margin:0 0 8px;display:grid;gap:12px;font-size:14px;color:var(--ink);line-height:1.65}
+.try::before{content:'직접 눌러 보기';display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--accent-ink)}
+.trybtns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.trybtn{border:0;background:var(--accent);color:#fff;border-radius:999px;padding:9px 18px;font-size:13.5px;font-weight:600;cursor:pointer;transition:background .2s var(--ease),transform .1s var(--ease)}
+.trybtn:hover{background:var(--accent-press)}.trybtn:active{transform:scale(.97)}
+.raw{background:#fff;color:var(--ink);border-radius:14px;padding:12px 14px;font-size:13px;display:grid;gap:4px}
+.raw b{font-size:12px;color:var(--muted);font-weight:600}
+.raw b:not(:first-child){margin-top:6px}
+.raw code{font-family:var(--mono);font-size:12px;overflow-wrap:anywhere;color:var(--ink2)}
+.spec section{border-top:1px solid var(--line);padding:24px 0}
+.spec .try+section{border-top:0}
+.spec h2{font-size:16px;color:var(--ink);margin:0 0 12px;font-weight:700;letter-spacing:-.01em}
+.spec h2 small{font-weight:500;margin-left:6px}
+.spec ul{margin:0;padding-left:0;list-style:none;display:grid;gap:8px}
+.spec li{position:relative;padding-left:20px;line-height:1.65;color:var(--ink2)}
+.spec li::before{content:'';position:absolute;left:5px;top:.66em;width:5px;height:5px;border-radius:50%;background:var(--faint)}
+.spec ul.req li{padding-left:26px;color:var(--ink)}
+.spec ul.req li::before{left:0;top:.28em;width:18px;height:18px;border-radius:50%;background:var(--accent-soft) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232B54D0' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'><path d='M20 6 9 17l-5-5'/></svg>") no-repeat center/10px}
+.addh{margin:18px 0 10px;font-size:13px;font-weight:700;color:var(--ink)}
+.spec ul.add li{padding-left:26px;color:var(--ink)}
+.spec ul.add li::before{left:0;top:.28em;width:18px;height:18px;border-radius:50%;background:#F1ECFF url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236A4BD8' stroke-width='3.2' stroke-linecap='round'><path d='M12 5v14M5 12h14'/></svg>") no-repeat center/10px}
+.box{border-radius:18px;padding:16px 18px}
+.box.p{background:var(--bg)}.box.w{background:var(--amber-soft)}.box.e{background:var(--bg)}
+.box li{color:var(--ink)}
+.box.w li::before{background:var(--amber)}
+.qb{display:inline-block;font-size:11px;font-weight:700;color:var(--accent-ink);background:#fff;border-radius:6px;padding:1px 7px;margin-right:6px;vertical-align:1px}
+.exp{display:grid;gap:8px}
+.exp div{background:var(--bg);border-radius:16px;padding:14px 16px;font-size:14px;color:var(--ink2);line-height:1.6}
+.exp b{display:block;font-size:14px;color:var(--ink);margin-bottom:2px}
+.foot{font-size:12.5px;color:var(--muted);line-height:1.7}
+@media (max-width:1100px){.bar1{flex-wrap:wrap;row-gap:10px}.brand{flex:1 1 auto}.pager{flex:0 0 auto}.acts{order:3;flex-basis:100%;overflow-x:auto}}
+@media (max-width:900px){.split{grid-template-columns:1fr}.dev>.phone,.dev>.pc{position:static}.spec{border-left:0;border-top:1px solid var(--line);padding:28px 16px 48px}.stage{padding:20px 16px 32px}}
+@media (max-width:640px){.bar1{padding:10px 16px}.nav{padding:0 16px 10px}.brand div>span{display:none}.pager #reset{display:none}.pager button{padding:0 14px}.acts button{padding:6px 12px 6px 6px;font-size:13px}.cast{flex-wrap:nowrap;overflow-x:auto;margin:0 -16px;padding:2px 16px 4px;scrollbar-width:none}.cast::-webkit-scrollbar{display:none}.cast-l{display:none}.who{flex:0 0 auto;max-width:none}.spec h1{font-size:24px}}
+
+/* ── 휴대폰 ── */
+.phone{position:relative;width:360px;max-width:100%;height:clamp(580px,calc(100vh - var(--hdr,120px) - 48px),760px);background:#fff;border-radius:54px;padding:10px;box-shadow:0 0 0 1px rgba(25,31,40,.07),0 2px 6px rgba(25,31,40,.04),0 40px 70px -28px rgba(46,56,130,.35);flex-shrink:0}
+.screen{position:relative;width:100%;height:100%;background:var(--app-canvas);color:var(--app-ink);border-radius:44px;overflow:hidden;display:flex;flex-direction:column;font-size:14px}
+.island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:92px;height:27px;border-radius:999px;background:#0C0E13;z-index:8}
+.statusbar{display:flex;justify-content:space-between;align-items:center;padding:0 26px 0 30px;height:48px;font-size:14.5px;font-weight:600;letter-spacing:-.01em;flex-shrink:0}
+.sbi{display:flex;gap:5px;align-items:center}
+.appbar{display:flex;align-items:center;gap:8px;padding:6px 16px 10px 20px;min-height:48px}
+.appbar .t{font-weight:700;font-size:18px;flex:1;letter-spacing:-.02em}
+.back{border:0;background:none;line-height:0;cursor:pointer;color:var(--app-ink);padding:4px;margin-left:-8px;border-radius:10px}
+.back:hover{background:rgba(25,31,40,.06)}
+.icon-btn{width:38px;height:38px;border:0;border-radius:12px;background:transparent;color:var(--app-ink);display:grid;place-items:center;cursor:pointer}
+.icon-btn:hover{background:rgba(25,31,40,.06)}
+.appmark{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:700;letter-spacing:-.02em}
+.appmark .am-i{width:28px;height:28px;border-radius:9px;background:var(--app-accent);color:#fff;display:grid;place-items:center}
+.appicon{width:64px;height:64px;border-radius:20px;background:var(--app-accent);color:#fff;display:grid;place-items:center;box-shadow:0 12px 24px -10px rgba(61,106,242,.6)}
+.body{flex:1;overflow-y:auto;padding:4px 16px 24px;display:flex;flex-direction:column;gap:12px;scrollbar-width:none}
+.body::-webkit-scrollbar{display:none}
+.body>*{flex-shrink:0}
+.bottom{padding:12px 16px 20px;border-top:1px solid var(--app-line);background:var(--app-bg)}
+.btn{display:block;width:100%;border:0;border-radius:16px;padding:15px 16px;font-size:16px;font-weight:600;cursor:pointer;background:var(--app-accent);color:#fff;transition:background .2s var(--ease),transform .1s var(--ease),opacity .2s}
+.btn:hover{background:var(--accent-press)}
+.btn:active{transform:scale(.98)}
+.btn.ghost{background:rgba(25,31,40,.06);color:var(--app-ink);font-weight:600}
+.btn.ghost:hover{background:rgba(25,31,40,.1)}
+.btn.line{background:#fff;color:var(--app-ink);box-shadow:inset 0 0 0 1px var(--line2);font-weight:600}
+.btn.line:hover{background:#F7F8FA}
+.btn.sm{width:auto;display:inline-block;padding:9px 14px;font-size:13px;border-radius:11px}
+.btn.danger{background:var(--app-red-soft);color:var(--app-red)}
+.btn:disabled{opacity:.38;cursor:default;transform:none}
+.btn:disabled:hover{background:var(--app-accent)}
+.btn.line:disabled:hover{background:#fff}
+.flabel{display:block;font-size:13px;font-weight:500;color:var(--app-muted);margin-bottom:6px}
+.input{width:100%;border:1px solid var(--line2);border-radius:14px;padding:13px 14px;font-size:16px;background:#fff;color:var(--app-ink);transition:border-color .2s var(--ease),box-shadow .2s var(--ease)}
+.input:focus{outline:0;border-color:var(--app-accent);box-shadow:0 0 0 3px rgba(61,106,242,.15)}
+textarea.input{min-height:64px;resize:vertical;font-size:14px;line-height:1.5}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{border:1px solid var(--line2);background:#fff;color:var(--app-ink);border-radius:999px;padding:7px 13px;font-size:13.5px;cursor:pointer;transition:background .2s var(--ease),border-color .2s var(--ease),color .2s var(--ease)}
+.opt:hover{border-color:rgba(25,31,40,.26)}
+.opt.on{background:var(--app-accent-soft);border-color:var(--app-accent);color:var(--accent-ink);font-weight:600}
+.opt.on .muted{color:var(--accent-ink);opacity:.75}
+.opt:disabled{cursor:default;opacity:.7}
+.card{border:0;border-radius:20px;padding:16px 18px;background:var(--app-bg)}
+.card.tap{cursor:pointer}.card.tap:hover{box-shadow:0 0 0 1px var(--app-accent)}
+.screen .body>div:has(>.tx),.screen .body>div:has(>.mt):not(.card):not(.result){background:var(--app-bg);border-radius:20px;padding:16px 18px 6px}
+.screen .body>div:has(>.mt):not(.card):not(.result):not(:has(>.tx)){padding-bottom:14px}
+.muted{color:var(--app-muted)}.small{font-size:12.5px}
+.mt{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12.5px;color:var(--app-muted)}
+.mt b{color:var(--app-ink);font-size:15px;font-weight:700}
+.amt{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;letter-spacing:-.01em}
+.lbl{display:inline-block;font-size:11px;font-weight:600;border-radius:7px;padding:3px 8px;white-space:nowrap;line-height:1.4}
+.lbl.ok{background:var(--app-accent-soft);color:var(--accent-ink)}.lbl.wa{background:var(--app-amber-soft);color:var(--app-amber)}.lbl.no{background:var(--app-red-soft);color:var(--app-red)}.lbl.gr{background:rgba(25,31,40,.06);color:var(--app-muted)}
+.tx{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px 0;border-bottom:1px solid var(--app-line);transition:opacity .2s}
+.tx:last-child{border-bottom:0}
+.tx[role=button]:hover .m{color:var(--accent-ink)}
+.tx .m{font-weight:600;font-size:15px;transition:color .2s var(--ease)}
+.tx .amt{font-size:15px}
+.tx .lbl{margin-top:4px}
+.bar{height:8px;background:rgba(25,31,40,.07);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--app-accent);border-radius:99px;transition:width .5s var(--ease)}
+.bar.wa i{background:#E59B1A}.bar.no i{background:var(--app-red)}
+.steps{display:flex;gap:4px}.steps i{flex:1;height:4px;border-radius:99px;background:rgba(25,31,40,.08);transition:background .3s var(--ease)}.steps i.on{background:var(--app-accent)}
+.seg{display:flex;background:rgba(25,31,40,.06);border-radius:12px;padding:3px;gap:2px}
+.seg button{flex:1;border:0;background:transparent;border-radius:10px;padding:8px 4px;font-size:13.5px;font-weight:500;cursor:pointer;color:var(--app-muted);transition:background .2s var(--ease),color .2s var(--ease)}
+.seg button:hover{color:var(--app-ink)}
+.seg button.on{background:#fff;color:var(--app-ink);font-weight:700;box-shadow:0 1px 2px rgba(25,31,40,.08),0 2px 6px rgba(25,31,40,.05)}
+.tabbar{display:flex;margin:-4px -8px -6px}
+.tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;border:0;background:none;padding:4px 0;font-size:11px;font-weight:500;color:#A1A9B3;cursor:pointer;transition:color .2s var(--ease)}
+.tabbar button:hover{color:var(--app-muted)}
+.tabbar button.on{color:var(--app-ink);font-weight:700}
+.tabbar svg{width:23px;height:23px}
+/* 주인공: 이번 달 내 카드 */
+.card.hero{position:relative;overflow:hidden;color:#fff;padding:20px 20px 18px;border-radius:24px;gap:10px!important;background:linear-gradient(135deg,#3461F1 0%,#5A55EE 52%,#9A58DE 100%);box-shadow:0 16px 30px -16px rgba(76,80,230,.7)}
+.card.hero::after{content:'';position:absolute;inset:0;background:radial-gradient(120% 90% at 100% 0%,rgba(255,255,255,.24),transparent 55%);pointer-events:none}
+.card.hero>*{position:relative;z-index:1}
+.hero .mt,.hero .mt span{color:rgba(255,255,255,.84)}
+.hero .mt b{color:#fff}
+.hero .big{color:#fff;letter-spacing:-.03em}
+.hero .bar{background:rgba(255,255,255,.24);height:6px}
+.hero .bar i{background:#fff}
+.toast{position:absolute;left:14px;right:14px;top:56px;background:#fff;color:var(--app-ink);border:0;border-radius:16px;padding:12px 10px 12px 14px;font-size:13px;line-height:1.55;box-shadow:0 0 0 1px rgba(25,31,40,.06),0 16px 36px -10px rgba(25,31,40,.28);z-index:9;text-wrap:pretty;animation:fade .25s var(--ease) both}
+.toast b{display:block;font-size:13.5px;margin-bottom:2px}
+.toast .ti{flex-shrink:0;width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700;margin-top:1px}
+.toast>div{flex:1}
+.push{position:absolute;left:10px;right:10px;top:46px;background:rgba(246,247,250,.86);backdrop-filter:blur(20px) saturate(1.6);-webkit-backdrop-filter:blur(20px) saturate(1.6);color:#111;border-radius:22px;padding:12px 14px 12px 54px;font-size:13px;line-height:1.45;box-shadow:0 12px 32px -8px rgba(0,0,0,.25),0 0 0 1px rgba(0,0,0,.04);z-index:7;cursor:pointer;display:grid;gap:1px;animation:drop .45s var(--ease) both}
+.push::before{content:'';position:absolute;left:12px;top:12px;width:32px;height:32px;border-radius:9px;background:var(--app-accent) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='2' y='5' width='20' height='14' rx='3'/><path d='M2 10h20'/></svg>") no-repeat center/18px}
+.push .ph{display:flex;justify-content:space-between;font-size:11.5px;color:#6B7280}
+.sheet{position:absolute;inset:0;background:rgba(17,20,28,.4);display:flex;align-items:flex-end;z-index:6;animation:fade .2s var(--ease) both}
+.sheet-in{background:var(--app-bg);width:100%;border-radius:28px 28px 0 0;padding:22px 20px 28px;display:grid;gap:12px;max-height:calc(100% - 28px);overflow-y:auto}
+.kv{display:grid;grid-template-columns:72px 1fr;gap:8px 12px;margin:0}
+.kv dt{color:var(--app-muted);font-size:13px}.kv dd{margin:0;font-weight:500}
+.result{border-radius:14px;padding:12px 14px;font-size:13.5px;font-weight:500;line-height:1.55}
+.result.ok{background:var(--app-accent-soft);color:var(--accent-ink)}.result.no{background:var(--app-red-soft);color:var(--app-red)}.result.wa{background:var(--app-amber-soft);color:var(--app-amber)}
+.result[role=button]{transition:filter .2s}.result[role=button]:hover{filter:brightness(.98)}
+.big{font-size:28px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.03em;line-height:1.25}
+.done{text-align:center;display:grid;gap:10px;justify-items:center;padding-top:40px}
+.check{width:72px;height:72px;border-radius:50%;background:var(--app-accent-soft);display:grid;place-items:center;color:var(--app-accent);margin-bottom:6px}
+.check svg{width:34px;height:34px;stroke-width:2.6}
+.vbars{display:flex;align-items:flex-end;gap:8px;height:124px;padding-top:6px}
+.vbars div{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end;font-size:11px;color:var(--app-muted);font-variant-numeric:tabular-nums}
+.vbars i{display:block;width:100%;max-width:30px;border-radius:8px;background:#DCE4FD}
+.vbars div.on i{background:var(--app-accent)}
+.vbars div.on span{color:var(--app-ink);font-weight:700}
+
+/* ── PC ── */
+.pc{width:100%;max-width:1040px;background:#fff;border-radius:16px;box-shadow:0 0 0 1px rgba(25,31,40,.08),0 40px 70px -32px rgba(46,56,130,.35);overflow:hidden}
+.pc-top{display:flex;gap:7px;align-items:center;padding:10px 14px;background:#F7F8FA;border-bottom:1px solid var(--line)}
+.pc-top i{width:11px;height:11px;border-radius:50%;background:#DFE2E8}
+.pc-top .url{flex:0 1 380px;margin:0 auto;background:#fff;color:var(--muted);font-size:12px;border-radius:8px;padding:5px 12px;text-align:center;box-shadow:0 0 0 1px var(--line);transform:translateX(-20px)}
+.admin{position:relative;display:grid;grid-template-columns:208px minmax(0,1fr);background:var(--app-canvas);color:var(--app-ink);min-height:max(700px,calc(100vh - var(--hdr,120px) - 110px));font-size:13.5px}
+.side{background:#fff;border-right:1px solid var(--line);padding:18px 12px 16px;display:flex;flex-direction:column;gap:2px}
+.side .lg{padding:2px 8px 18px}
+.side .appmark{font-size:15px}
+.side button{text-align:left;border:0;background:none;padding:9px 12px;border-radius:10px;font-size:13.5px;font-weight:500;color:var(--ink2);cursor:pointer;transition:background .2s var(--ease),color .2s var(--ease)}
+.side button:hover{background:var(--app-soft);color:var(--ink)}
+.side button.on{background:var(--accent-soft);color:var(--accent-ink);font-weight:700}
+.side button.off{color:#A6ADB7}
+.side .me{margin-top:auto;padding:12px 8px 0;border-top:1px solid var(--line);display:flex;gap:10px;align-items:center;font-size:12px;color:var(--app-muted)}
+.side .me .av{width:32px;height:32px;border-radius:50%;background:var(--accent-soft);color:var(--accent-ink);display:grid;place-items:center;font-size:11.5px;font-weight:700}
+.side .me b{display:block;color:var(--ink);font-size:13px}
+.main{padding:28px 32px 40px;display:flex;flex-direction:column;gap:20px}
+.main h3{margin:0;font-size:22px;letter-spacing:-.025em;font-weight:700}
+.hd{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.acts2{display:flex;gap:6px;flex-wrap:wrap}
+.panel{background:#fff;border:0;border-radius:18px;box-shadow:0 0 0 1px var(--line);overflow:hidden}
+.panel-h{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:16px 20px;border-bottom:1px solid var(--line);font-weight:700;font-size:14.5px;flex-wrap:wrap}
+.pad{padding:16px 20px;display:grid;gap:12px}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+th{color:var(--muted);font-weight:500;font-size:12px;background:#FAFBFC}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+tr.warn td{background:#FFF8EA}tr.chg td{background:var(--accent-soft)}
+td select{border:1px solid var(--line2);border-radius:8px;padding:5px 8px;font-size:13px;background:#fff;color:var(--app-ink);cursor:pointer}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.stat{background:#fff;border:0;border-radius:18px;padding:18px 20px;text-align:left;cursor:pointer;color:inherit;box-shadow:0 0 0 1px var(--line);transition:box-shadow .2s var(--ease)}
+div.stat{cursor:default}
+button.stat:hover{box-shadow:0 0 0 1px var(--line2),0 6px 16px -6px rgba(25,31,40,.14)}
+.stat .v{font-size:28px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1.3}
+.stat .k{color:var(--app-muted);font-size:12.5px;margin-top:2px}
+.stat.on{box-shadow:0 0 0 2px var(--app-accent)}
+.stat.wa .v{color:var(--app-amber)}.stat.no .v{color:var(--app-red)}
+.grp{display:grid;gap:10px;padding:18px 20px;border-bottom:1px solid var(--line)}
+.grp:last-child{border-bottom:0}
+.grp .gh{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.grp .gh b{font-size:14.5px}
+.grp .scroll{border-radius:12px;box-shadow:0 0 0 1px var(--line)}
+.log{font-size:12.5px;color:var(--app-muted);display:grid;gap:4px;font-variant-numeric:tabular-nums}
+.modal{position:absolute;inset:0;background:rgba(17,20,28,.36);display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;z-index:6;animation:fade .2s var(--ease) both}
+.modal-in{background:#fff;border-radius:20px;width:min(780px,100%);display:grid;gap:14px;padding:22px;max-height:100%;overflow:auto;box-shadow:0 30px 60px -20px rgba(25,31,40,.35)}
+.modal-in .scroll{border-radius:12px;box-shadow:0 0 0 1px var(--line)}
+.pc .toast{position:absolute;top:16px;left:224px;right:auto;width:auto;max-width:min(540px,calc(100% - 248px));z-index:30}
+@media (max-width:760px){.pc .toast{left:16px;width:calc(100% - 32px);max-width:none}}
+.toast{display:flex;gap:12px;align-items:flex-start;justify-content:space-between}
+.tx-x{flex-shrink:0;border:0;background:none;color:var(--app-muted);font-size:18px;line-height:1;cursor:pointer;padding:2px 6px;border-radius:8px}.tx-x:hover{background:var(--app-soft);color:var(--app-ink)}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}
+@media (max-width:1500px){.two{grid-template-columns:1fr}}@media (max-width:1300px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:1400px){.admin{grid-template-columns:168px minmax(0,1fr)}.main{padding:22px 20px 28px;gap:16px}th,td{padding:11px 12px}.pc .toast{left:184px;max-width:calc(100% - 204px)}}
+@media (max-width:760px){.admin{grid-template-columns:1fr}.side{display:none}.main{padding:18px 14px 24px}.main h3{font-size:19px}}
+.screen .toast{left:10px;right:10px;padding:12px 8px 12px 12px;gap:6px}.screen .toast .ti{display:none}.screen .toast b{font-size:13px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* ── 핀테크 톤: 흰 바탕, 검정 글자, 초록은 숫자·상태에만 ── */
+:root{
+--bg:#FFFFFF;--panel:#FFFFFF;--ink:#0B0D0E;--ink2:#3D4347;--muted:#6B7277;--faint:#9AA0A5;--line:#ECEDEF;--line2:#DCDFE2;--soft:#F5F6F7;
+--accent:#0B0D0E;--accent-press:#2A2E31;--accent-soft:#F2F3F4;--accent-ink:#0B0D0E;
+--green:#0A8A4C;--green-bar:#12B35C;--green-soft:#E7F6EE;
+--amber:#A85800;--amber-soft:#FFF3E3;--red:#D63C12;--red-soft:#FFEDE7;
+--app-bg:#FFFFFF;--app-canvas:#FFFFFF;--app-ink:#0B0D0E;--app-muted:#6B7277;--app-line:#ECEDEF;--app-soft:#F5F6F7;--app-accent:#0B0D0E;--app-accent-soft:#F2F3F4;--app-amber:#A85800;--app-amber-soft:#FFF3E3;--app-red:#D63C12;--app-red-soft:#FFEDE7;
+--font:'Inter','Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',system-ui,sans-serif;
+--display:var(--font);--body:var(--font)}
+body{background:var(--bg);font-feature-settings:'tnum' 1,'cv11' 1}
+::selection{background:rgba(18,179,92,.22)}
+
+/* 상단 */
+.top{background:#fff;backdrop-filter:none;-webkit-backdrop-filter:none;border-bottom:1px solid var(--line)}
+.mark{background:var(--ink);border-radius:10px}
+.brand b{font-size:15px;font-weight:700;letter-spacing:-.02em}
+.acts{background:transparent;padding:0;gap:2px}
+.acts button{padding:7px 14px 7px 7px;color:var(--muted);font-weight:600}
+.acts button i{background:var(--soft);color:var(--ink2)}
+.acts button:hover{background:var(--soft)}
+.acts button[aria-selected=true]{background:var(--ink);color:#fff;box-shadow:none}
+.acts button[aria-selected=true] i{background:#fff;color:var(--ink)}
+.pager button{background:#fff;box-shadow:inset 0 0 0 1px var(--line2);font-weight:600}
+.pager button:hover{background:var(--soft)}
+.pager #next{background:var(--ink);box-shadow:none}
+.pager #next:hover{background:var(--accent-press)}
+.pager #reset{box-shadow:none}
+.chip{border-color:var(--line2);color:var(--ink2)}
+.chip b{background:var(--soft);color:var(--ink2)}
+.chip[aria-current=true]{background:var(--ink);border-color:var(--ink);color:#fff}
+.chip[aria-current=true] b{background:#fff;color:var(--ink)}
+.chip[aria-current=true] .w{color:#fff;opacity:.6}
+
+/* 무대 */
+.stage{background:var(--soft)}
+.scn{color:var(--ink2)}
+.scn b{background:var(--ink);color:#fff;border-radius:6px;padding:2px 8px}
+.who{background:#fff;border:1px solid var(--line);border-radius:14px}
+.who:hover{border-color:var(--line2)}
+.who .av{background:var(--soft);color:var(--ink)}
+.who.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.who.on .av{background:var(--ink);color:#fff}
+div.who .av{background:var(--red-soft);color:var(--red)}
+
+/* 오른쪽 설명 */
+.spec{border-left:1px solid var(--line)}
+.pill.a{background:var(--ink);color:#fff}.pill.b{background:var(--soft);color:var(--ink2)}
+.spec h1{font-size:32px;letter-spacing:-.035em;font-weight:800;line-height:1.25}
+.spec .lead{color:var(--ink2)}
+.try{background:var(--soft);border:1px solid var(--line);border-radius:16px}
+.try::before{color:var(--green)}
+.trybtn{background:var(--ink)}
+.trybtn:hover{background:var(--accent-press)}
+.raw{border:1px solid var(--line)}
+.spec h2{font-size:15px;font-weight:700}
+.spec ul.req li::before{background:var(--green-soft) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230A8A4C' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'><path d='M20 6 9 17l-5-5'/></svg>") no-repeat center/10px}
+.spec ul.add li::before{background:var(--soft) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230B0D0E' stroke-width='3.2' stroke-linecap='round'><path d='M12 5v14M5 12h14'/></svg>") no-repeat center/10px}
+.box{border-radius:14px}
+.box.p{background:var(--soft)}
+.qb{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1px var(--line2)}
+.exp div{background:#fff;border:1px solid var(--line);border-radius:14px}
+
+/* 휴대폰 */
+.phone{background:#0B0D0E;border-radius:52px;padding:9px;box-shadow:0 0 0 1px #2A2E31,0 30px 60px -30px rgba(0,0,0,.35)}
+.screen{border-radius:44px;background:#fff}
+.appmark .am-i,.appicon{background:var(--ink)}
+.appicon{box-shadow:none}
+.icon-btn:hover,.back:hover{background:var(--soft)}
+.body{gap:10px}
+.btn{background:var(--ink);border-radius:999px;font-weight:700}
+.btn:hover{background:var(--accent-press)}
+.btn:disabled:hover{background:var(--ink)}
+.btn.ghost{background:var(--soft)}
+.btn.ghost:hover{background:#ECEDEF}
+.btn.line{box-shadow:inset 0 0 0 1px var(--line2)}
+.btn.sm{border-radius:999px}
+.input{border-color:var(--line2);border-radius:12px}
+.input:focus{border-color:var(--ink);box-shadow:0 0 0 3px rgba(11,13,14,.08)}
+.opt{border-color:var(--line2)}
+.opt.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.opt.on .muted{color:#fff;opacity:.7}
+.card{border:1px solid var(--line);border-radius:16px}
+.screen .body>div:has(>.tx),.screen .body>div:has(>.mt):not(.card):not(.result){border:1px solid var(--line);border-radius:16px}
+.lbl.ok{background:var(--green-soft);color:var(--green)}
+.lbl.gr{background:var(--soft)}
+.bar{background:#EEEFF1;height:6px}
+.bar i{background:var(--green-bar)}
+.bar.wa i{background:#F0A020}.bar.no i{background:var(--red)}
+.steps i.on{background:var(--ink)}
+.seg{background:var(--soft);border-radius:999px}
+.seg button{border-radius:999px}
+.seg button.on{box-shadow:0 0 0 1px var(--line2)}
+.tabbar button{color:#A3A9AE}
+.tabbar button.on{color:var(--ink)}
+.result{border-radius:12px}
+.result.ok{background:var(--green-soft);color:var(--green)}
+.check{background:var(--green-soft);color:var(--green)}
+.vbars i{background:#E6E8EA;border-radius:6px}
+.vbars div.on i{background:var(--green-bar)}
+
+/* 주인공: 큰 숫자 하나 */
+.card.hero{background:#fff;color:var(--ink);border:0;border-radius:0;box-shadow:none;padding:8px 2px 16px;border-bottom:1px solid var(--line)}
+.card.hero::after{display:none}
+.hero .mt,.hero .mt span{color:var(--muted)}
+.hero .mt b{color:var(--ink)}
+.hero .big{color:var(--ink);font-size:38px!important;font-weight:800;letter-spacing:-.04em}
+.hero .bar{background:#EEEFF1;height:6px}
+.hero .bar i{background:var(--green-bar)}
+
+/* 알림 */
+.toast{background:var(--ink);color:#fff;box-shadow:0 16px 36px -12px rgba(0,0,0,.45)}
+.toast .ti{background:var(--green-bar);color:#fff}
+.tx-x{color:rgba(255,255,255,.6)}.tx-x:hover{background:rgba(255,255,255,.12);color:#fff}
+.push::before{background-color:var(--ink)}
+.sheet-in{border-radius:24px 24px 0 0}
+
+/* PC */
+.pc{border-radius:14px;box-shadow:0 0 0 1px var(--line2),0 24px 48px -28px rgba(0,0,0,.25)}
+.pc-top{background:#FAFAFB}
+.admin{background:#fff}
+.side{border-right:1px solid var(--line)}
+.side button.on{background:var(--soft);color:var(--ink)}
+.side .me .av{background:var(--ink);color:#fff}
+.main{background:#fff}
+.main h3{font-size:24px;font-weight:800;letter-spacing:-.035em}
+.panel,.stat{box-shadow:none;border:1px solid var(--line);border-radius:14px}
+button.stat:hover{box-shadow:none;border-color:var(--line2)}
+.stat.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.stat .v{font-size:30px;font-weight:800;letter-spacing:-.04em}
+th{background:#fff;color:var(--faint);font-weight:600;font-size:11.5px}
+tr.chg td{background:var(--green-soft)}
+.grp .scroll,.modal-in .scroll{box-shadow:none;border:1px solid var(--line)}
+.hero .mt:has(>.big){flex-direction:column;align-items:flex-start;gap:2px}
+.hero .mt:has(>.big) span:first-child{font-size:13px;font-weight:500}
+</style>
+<header class="top">
+  <div class="bar1">
+    <div class="brand"><span class="mark"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg></span><div><b>법인카드 관리</b><span>눌러 볼 수 있는 화면 시안 · 실제 데이터는 연결되어 있지 않아요</span></div></div>
+    <div class="acts" id="acts" role="tablist" aria-label="단계"></div>
+    <div class="pager"><button type="button" id="reset">처음부터</button><button type="button" id="prev">이전</button><span class="count" id="count"></span><button type="button" id="next">다음</button></div>
+  </div>
+  <nav class="nav" id="nav" aria-label="화면 순서"></nav>
+</header>
+<main class="split"><div class="stage"><div class="ctx"><p class="scn" id="scn"></p><div class="cast" id="cast"></div></div><div class="dev" id="stage"></div></div><aside class="spec" id="spec" aria-live="polite"></aside></main>
+<script>
+{
+const $=s=>document.querySelector(s);
+const won=n=>n.toLocaleString('ko-KR')+'원';
+const I={s4:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>',s5:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-2.3-1.5L14.3 21 12 19.5 9.7 21l-2.4-1.5L5 21z"/><path d="M9 8h6M9 12h6"/></svg>',s6:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.2 15.9A10 10 0 1 1 8 2.8"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>',me:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',card:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg>',bell:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>',back:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>',check:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>',lock:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>'};
+I.sb='<svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor" aria-hidden="true"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg><svg width="15" height="11" viewBox="0 0 15 11" fill="currentColor" aria-hidden="true"><path d="M7.5 2.2c2.1 0 4 .8 5.5 2.1l1.2-1.3A9.6 9.6 0 0 0 7.5.4 9.6 9.6 0 0 0 .8 3l1.2 1.3a8 8 0 0 1 5.5-2.1Z"/><path d="M7.5 5.6c1.2 0 2.3.4 3.1 1.2l1.2-1.3a6.3 6.3 0 0 0-8.6 0l1.2 1.3c.8-.8 1.9-1.2 3.1-1.2Z"/><circle cx="7.5" cy="9.4" r="1.5"/></svg><svg width="25" height="12" viewBox="0 0 25 12" aria-hidden="true"><rect x=".5" y=".5" width="21" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="2" fill="currentColor"/><rect x="23" y="4" width="1.6" height="4" rx=".8" fill="currentColor" opacity=".45"/></svg>';
+const MARK=n=>`<div class="appmark"><span class="am-i">${I.card.replace(/22/g,'16')}</span><span>${n}</span></div>`;
+const ACTS=[['a1','1단계 · 계정 준비','관리자가 직원과 카드를 등록하고 권한과 예산을 정합니다.'],['a2','2단계 · 결제 관리 (매일)','직원이 법인카드로 결제하면 내역이 자동으로 등록되고, 직원이 직접 계정과목을 넣습니다.'],['a3','3단계 · 월말 마감','관리자가 카드사 자료와 맞춰 본 뒤 한 달을 마감합니다.']];
+const WHO={admin:'관리자 · PC',emp:'직원 · 휴대폰',head:'부서장 · 휴대폰'};
+const S=[
+{id:'s1',act:'a1',who:'admin',name:'직원·카드 등록과 권한 주기',
+ lead:'관리자가 직원과 카드를 엑셀로 한 번에 올리고, 사람마다 권한을 정합니다.',
+ tryit:'"엑셀 일괄 등록"을 누르고 "반영"을 눌러 보세요. 권한 칸을 바꾸면 아래에 기록이 남습니다.',
+ req:['직원과 카드 등록, 수정, 검색','엑셀로 한 번에 등록 (미리 보기, 잘못된 줄 알려 주기)','권한 3가지: 직원, 부서장, 관리자','부서장이 맡을 부서 정하기','퇴사, 복직, 부서 이동 때 카드 회수와 넘기기'],
+ add:['잘못된 줄만 빼고 나머지는 바로 올리기'],
+ policy:['사번이 겹치거나 없는 부서가 적힌 줄은 올리지 않습니다.','카드는 한 번에 한 사람만 씁니다. 다른 사람에게 넘겨도 지난 내역은 원래 사람 이름으로 남습니다.','한 사람이 여러 부서를 맡을 수 있게 할까요?','권한은 관리자만 바꿀 수 있고, 바꾼 기록은 지우지 않습니다.'],
+ concern:['지금 엑셀에 부서 이름이 서로 다르게 적혀 있으면, 옮길 때 맞춰야 합니다. 부서 목록을 먼저 정하고 직원을 올리면 편합니다.','여러 명이 함께 쓰는 카드가 있다면, 누가 내역을 입력할지 정해야 합니다.'],
+ exp:[['공카 CRM','팀마다 양식이 다른 엑셀 7년 치를 하나로 옮겼습니다. 맞지 않는 줄은 걸러서 알려 주게 만들었습니다.'],['삼성전자','법인, 팀, 직급 3단계로 권한을 나눴습니다.'],['정보시스템감리협회','양식이 제각각인 기록을 정리해 새 시스템으로 옮겼습니다.']]},
+{id:'s2',act:'a1',who:'admin',name:'예산·한도 설정',
+ lead:'카드 한도, 계정과목별 예산, 경고 기준을 정합니다. 직원 화면의 "남은 예산"이 여기서 나옵니다.',
+ tryit:'예산 칸을 눌러 숫자를 바꾸고 위의 "저장"을 눌러 보세요. 경고 기준도 바꿀 수 있습니다. 바꾼 값은 6번 화면에 바로 반영됩니다.',
+ req:['카드 한도 정하기','계정과목별 예산 정하기 (엑셀로도 가능)','경고 기준 정하기','한도를 정하면 직원에게 알림'],
+ add:[],
+ policy:['예산은 "부서별, 계정과목별"로 두고, 카드에는 한도만 두는 것을 제안합니다.','경고 기준을 하나로 할까요, 계정과목마다 다르게 할까요?','달 중간에 예산을 바꾸면 남은 예산만 다시 계산합니다.','남은 예산을 다음 달로 넘길까요?'],
+ concern:['카드사 한도와 이 앱의 한도가 다르면 헷갈릴 수 있습니다. 앱의 한도는 "회사 내부 한도"라고 부르는 것을 제안합니다.'],
+ exp:[]},
+{id:'s3',act:'a1',who:'emp',name:'직원 첫 로그인과 문자 전달 설정',
+ lead:'직원이 처음 한 번만 하는 설정입니다. 끝나면 카드 결제 문자가 자동으로 들어옵니다.',
+ tryit:'버튼을 차례로 눌러 끝까지 가 보세요. 4단계는 설치 → 켜기 → 시험 문자 순서입니다. 아이폰과 안드로이드를 바꿔 볼 수 있습니다.',
+ req:['사번으로 로그인, 첫 로그인 때 비밀번호 바꾸기','비밀번호를 5번 틀리면 잠금','휴대폰 홈 화면에 앱처럼 추가','결제 문자 전달 설정 안내','직원마다 다른 연결값 사용'],
+ add:['설치 버튼 한 번, 켜기 한 번으로 끝나는 설정 (주소나 조건을 직원이 직접 넣지 않음)','시험 문자로 연결이 됐는지 바로 확인','설정을 마치면 관리자 화면에 "완료" 표시'],
+ policy:['직원에게 카드 번호나 카드 비밀번호는 받지 않습니다. 관리자가 등록한 카드 끝 4자리와 문자 속 카드 번호로 누구 카드인지 맞춥니다.','잠긴 계정은 관리자가 풀까요, 시간이 지나면 자동으로 풀까요?','첫 비밀번호는 어떻게 전달할까요?','설정을 안 마친 직원에게 며칠마다 다시 알려 줄까요?'],
+ concern:['직원이 따라 하기 어려우면 문자가 모이지 않습니다. 그래서 설정을 버튼 몇 번으로 줄였습니다.','아이폰은 홈 화면에 추가해야 알림을 받을 수 있습니다. 그래서 이 단계를 앞에 두었습니다.','아이폰 단축어가 화면이 꺼진 상태에서도 잘 도는지, 착수 2주 안에 실제 휴대폰으로 확인하겠습니다.','신한카드 알림을 문자가 아닌 앱 알림으로 받는 직원은 문자가 오지 않습니다. 모든 직원이 문자로 받고 있는지 확인이 필요합니다.','안드로이드는 배터리 절약 기능이 문자 전달을 멈출 때가 있어, 설정 안내에 함께 넣었습니다.'],
+ exp:[['두산로보틱스 LMS','사용자에게 휴대폰 알림을 보내는 기능을 만들었습니다.']]},
+{id:'s4',act:'a2',who:'emp',name:'결제 문자 도착',
+ lead:'직원이 카드를 쓰면 결제 문자가 넘어와 내역이 저절로 등록되고, 알림이 옵니다.',
+ tryit:'"결제 문자 보내기"를 눌러 보세요. 알림이 오고 "오늘"에 내역이 생깁니다. 위 등장인물에서 최도윤을 누르면 최도윤의 카드와 내역으로 바뀝니다.',
+ btns:[['sms','결제 문자 보내기']],
+ req:['아이폰과 안드로이드에서 결제 문자 받기','신한카드 문자 읽기: 승인, 취소, 해외 결제','취소 문자는 원래 결제와 연결, 같은 문자가 두 번 오면 한 번만 등록','내역이 등록되면 알림, 입력 안 한 내역은 매일 아침 9시에 알림','홈: 오늘·어제 내역과 이번 달 남은 한도'],
+ add:['받은 문자를 그대로 보관해, 문자 모양이 바뀌어도 다시 읽을 수 있게'],
+ policy:['입력 안 한 내역 알림은 며칠까지 보낼까요? 부서장에게도 알릴까요?','취소 문자가 원래 결제를 못 찾으면, 월말 대조 때 확인합니다.'],
+ concern:['카드사가 문자 문구를 바꾸면 읽지 못할 수 있습니다. 읽지 못한 문자는 11번 화면에 바로 보이게 했습니다.','문자는 결제 뒤 조금 늦게 올 수 있습니다.'],
+ exp:[['공카 CRM','입금이 들어오면 자동으로 확인하고 담당자에게 알림을 보냅니다.'],['캔디페이','결제와 결제 취소를 하나로 묶어 처리했습니다.']]},
+{id:'s5',act:'a2',who:'emp',name:'내역 입력',
+ lead:'카드를 쓴 사람이 사용내역 목록에서 내역을 골라 계정과목을 넣습니다. 지금은 월말에 담당자가 대신 하던 일입니다.',
+ tryit:'목록에서 "입력 전" 내역을 골라 계정과목을 누르고 "입력 완료"를 눌러 보세요. 최도윤으로 바꾸면 어제 미룬 내역도 고를 수 있습니다.',
+ req:['계정과목, 적요, 함께 사용한 사람, 이용 사유 입력','내역 목록: 미입력, 입력 완료, 승인취소로 나눠 보기와 합계'],
+ add:['계정과목마다 한 줄 설명을 붙여 고르기 쉽게'],
+ policy:['계정과목 목록은 누가 관리할까요?','접대비처럼 함께 쓴 사람을 꼭 적어야 하는 항목이 있을까요?','입력한 내용은 그 달 마감 전까지 고칠 수 있게 하는 것을 제안합니다.','내역은 지우지 않습니다. 잘못된 건은 승인취소로 남깁니다.'],
+ concern:['계정과목 이름이 어려우면 직원이 잘못 고를 수 있습니다. 그래서 설명을 함께 보여 줍니다.'],
+ exp:[]},
+{id:'s6',act:'a2',who:'emp',name:'예산 확인',
+ lead:'내 카드 한도와 우리 부서의 남은 예산을 봅니다. 기준 아래로 떨어지면 빨간색이 되고 알림이 옵니다.',
+ tryit:'"리포트"를 눌러 지난달과 비교해 보세요. 2번 화면에서 경고 기준을 바꾸면 빨간색이 되는 때가 달라집니다.',
+ req:['카드 한도와 계정과목별 남은 예산','기준 아래면 빨간색','리포트: 지난달 대비, 최근 6개월, 계정과목 비교','예산 경고 알림'],
+ add:[],
+ policy:['입력하지 않은 금액은 카드 한도에만 먼저 넣고, 입력하면 계정과목 예산에 넣는 것을 제안합니다.','예산을 넘겨도 입력은 막지 않고 경고만 할까요?','경고 알림은 한 번만 보낼까요, 넘을 때마다 보낼까요?'],
+ concern:['문자 금액과 카드사 최종 금액이 다를 때가 있습니다(해외 결제, 일부 취소). 월말 대조 뒤 남은 예산이 조금 바뀔 수 있습니다.'],
+ exp:[]},
+{id:'s7',act:'a2',who:'head',name:'부서장 조회',
+ lead:'부서장은 맡은 부서와 그 아래 부서의 내역을 봅니다. 고칠 수는 없습니다.',
+ tryit:'부서를 바꿔 보고, 내역을 눌러 보세요. 수정 버튼이 없습니다.',
+ req:['맡은 부서와 아래 부서 내역 보기 (수정 불가)'],
+ add:['입력 안 한 건수를 맨 위에 보여 주기'],
+ policy:['부서장이 직원에게 "입력해 주세요" 알림을 보낼 수 있게 할까요?','부서를 옮긴 직원의 지난 내역은 예전 부서장이 계속 볼까요?'],
+ concern:['화면에서 숨기는 것만으로는 부족해서, 서버에서도 볼 수 있는 사람인지 매번 확인합니다.'],
+ exp:[['삼성전자','법인, 팀, 직급 3단계로 권한을 나눠, 윗단계가 아랫단계를 보게 만들었습니다.']]},
+{id:'s8',act:'a3',who:'admin',name:'전사 예산 현황',
+ lead:'회사 전체와 부서별 예산을 한 화면에서 보고, 양호·주의·위험으로 나눠 봅니다.',
+ tryit:'위의 "위험" 칸을 눌러 보세요. 그 부서만 남습니다. 한 번 더 누르면 전체가 보입니다.',
+ req:['부서별 배정, 사용, 남은 금액','사용률에 따라 양호·주의·위험 표시와 그래프','내역 엑셀 내려받기 (기간, 부서, 카드별)'],
+ add:[],
+ policy:['70% 아래는 양호, 90%까지는 주의, 그 위는 위험으로 두었습니다. 바꿀 수 있습니다.','영업본부처럼 위 부서는 아래 부서를 합쳐 보여 줍니다.'],
+ concern:['달 중간 금액은 카드사 최종 금액이 나오기 전이라 조금 다를 수 있습니다. 화면에 그렇게 적어 둡니다.'],
+ exp:[]},
+{id:'s9',act:'a3',who:'admin',name:'매입 대조',
+ lead:'월말에 카드사 엑셀을 올리면, 앱에 쌓인 내역과 하나씩 맞춰 봅니다.',
+ tryit:'"11월 매입 엑셀 올리기"를 누르고, 묶음마다 버튼을 눌러 보세요. 4개를 다 누르면 마감으로 넘어갈 수 있습니다.',
+ req:['승인번호, 시각, 금액, 가맹점으로 맞추기','묶음별로 확인하고 카드사 금액으로 확정','문자가 안 오는 해외 결제와 하이패스는 여기서 등록','카드사 승인내역 엑셀 올리기'],
+ add:['카드사에만 있는 건은 쓴 사람에게 입력해 달라고 알림'],
+ policy:['금액이 다르면 카드사 금액을 맞는 것으로 봅니다.','아직 카드사에 넘어가지 않은 건은 다음 달로 넘길까요?'],
+ concern:['카드사 엑셀 양식이 바뀌면 읽지 못할 수 있습니다. 올릴 때 먼저 확인하고, 다르면 바로 알려 드립니다.','제안서의 "카드사 승인내역 자동 채우기"를 쓰면 문자가 빠진 건이 크게 줄어듭니다.'],
+ exp:[['공카 CRM','들어온 입금을 장부와 자동으로 맞춰 보고, 안 맞는 건을 알려 주게 만들었습니다.']]},
+{id:'s10',act:'a3',who:'admin',name:'월 마감',
+ lead:'대조가 끝나면 회사 전체를 한 번에 마감합니다. 마감한 달은 고칠 수 없고, 필요하면 부서별로 사유를 남기고 풉니다.',
+ tryit:'"11월 전사 마감"을 누르고, 한 부서를 풀었다가 다시 마감해 보세요. 기록이 남습니다.',
+ btns:()=>st.rc.ok&&st.rc.diff&&st.rc.card&&st.rc.app?null:[['rcAll','대조를 마친 상태로 보기']],
+ req:['회사 전체를 한 번에 마감, 부서별로 풀기','푼 사유와 기록 남기기, 마감한 달은 수정·등록 잠금'],
+ add:['마감 전에 입력 안 한 건과 대조 상태를 먼저 보여 주기'],
+ policy:['입력 안 한 건이 있으면 마감을 막을까요, 경고만 할까요? 데모는 경고만 합니다.','마감을 풀 수 있는 사람은 관리자로 두는 것을 제안합니다.','마감 기한을 정할까요? (예: 다음 달 5일)'],
+ concern:['마감을 자주 풀면 숫자를 믿기 어렵습니다. 그래서 사유를 꼭 받고, 기록은 지우지 않습니다.'],
+ exp:[]},
+{id:'s11',act:'a3',who:'admin',name:'운영 점검',
+ lead:'결제 문자가 잘 들어오고 있는지 보는 화면입니다.',
+ tryit:'"설정 안내 다시 보내기"와 "다시 읽기"를 눌러 보세요.',
+ req:['문자 읽기 성공률','같은 문자 막은 건수, 취소를 원래 결제에 연결한 건수','성공률이 떨어지면 관리자에게 알림'],
+ add:['며칠째 문자가 안 들어온 직원 찾기와 안내 다시 보내기','읽지 못한 문자를 다시 읽기'],
+ policy:['성공률이 몇 % 아래면 알릴까요? (예: 95%)','며칠 동안 문자가 없으면 확인할까요? 데모는 3일입니다.'],
+ concern:['문자가 없는 게 "카드를 안 썼다"인지 "설정이 꺼졌다"인지는 이 화면만으로 알 수 없습니다. "카드사 승인내역 자동 채우기"를 쓰면 둘을 구분할 수 있습니다.'],
+ exp:[]}
+];
+const SUBJ=[['복리후생비','직원 식대, 회식, 경조사'],['접대비','거래처 식사·선물'],['회의비','회의 중 다과·회의실'],['여비교통비','택시, 출장 교통·숙박'],['소모품비','사무용품, 소모품'],['도서인쇄비','책, 인쇄·제본']];
+const BUD={복리후생비:600000,접대비:1000000,회의비:300000,여비교통비:400000,소모품비:200000,도서인쇄비:0};
+const USED0={복리후생비:452000,접대비:620000,회의비:90000,여비교통비:183000,소모품비:40000,도서인쇄비:0};
+const PP={E2107:{id:'E2107',n:'김민지',t:'영업1팀',card:'****-3345',limit:3000000,base:1214000},E2110:{id:'E2110',n:'최도윤',t:'영업1팀',card:'****-3352',limit:2000000,base:1185800}};
+const TX0=[{id:'k2',p:'E2107',d:'11/26',tm:'12:31',m:'여의도 한상 식당',a:48000,s:'',sms:1,raw:'[신한카드] 승인 김*지 48,000원 (일시불) 11/26 12:31 여의도한상식당'},{id:'k1',p:'E2107',d:'11/25',tm:'08:52',m:'택시',a:12300,s:'여비교통비',base:1},{id:'k0',p:'E2107',d:'11/24',tm:'12:10',m:'사무용품 마트',a:40000,s:'소모품비',base:1},{id:'c2',p:'E2110',d:'11/26',tm:'08:40',m:'택시',a:15200,s:'',sms:1,raw:'[신한카드] 승인 최*윤 15,200원 (일시불) 11/26 08:40 서울택시'},{id:'c1',p:'E2110',d:'11/25',tm:'19:40',m:'카페 온다',a:9800,s:''},{id:'c0',p:'E2110',d:'11/24',tm:'20:15',m:'일식당 소담',a:186000,s:'접대비',base:1}];
+const IMP=[{id:'E2041',n:'박준호',d:'영업본부',p:'본부장',r:'부서장',c:'****-2218'},{id:'E2107',n:'김민지',d:'영업1팀',p:'매니저',r:'직원',c:'****-3345'},{id:'E2110',n:'최도윤',d:'영업1팀',p:'대리',r:'직원',c:'****-3352'},{id:'E2115',n:'정하은',d:'영업2팀',p:'대리',r:'직원',c:'****-4410'},{id:'E2120',n:'한지우',d:'영업2팀',p:'사원',r:'직원',c:'****-4427'},{id:'E3002',n:'오세훈',d:'개발팀',p:'팀장',r:'부서장',c:'****-5501'},{id:'E3011',n:'윤서연',d:'개발팀',p:'선임',r:'직원',c:'****-5519'},{id:'E2131',n:'강태민',d:'영업3팀',p:'사원',r:'직원',c:'****-4433',w:'부서 "영업3팀"이 부서 목록에 없어요'},{id:'E2110',n:'최도윤',d:'영업1팀',p:'대리',r:'직원',c:'****-3360',w:'사번 E2110이 위 행과 겹쳐요'}];
+const st={i:0,flash:'',imp:false,modal:false,roles:{},log:[],warn:20,draftWarn:20,onb:1,os:'ios',smsTest:false,sms:false,push:false,subj:'',withp:['최도윤'],entered:false,btab:'now',dept:'all',sheet:null,f8:'',rc:{up:false,ok:false,diff:false,card:false,app:false},closed:false,unlock:null,who:'E2107',sel:null,f5:'all',draft:{},got:{E2107:false,E2110:false},tx:TX0.map(x=>Object.assign({},x)),o1:false,o2:false,budDraft:Object.assign({},BUD),chg:[],unlockOpen:null,clog:[],resent:{},reparsed:false};
+let flashT=null;
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const vis=id=>st.tx.filter(x=>x.p===id&&(!x.sms||st.got[id]));
+const used=s=>USED0[s]+Object.keys(PP).flatMap(vis).filter(x=>!x.base&&x.s===s).reduce((a,x)=>a+x.a,0);
+const cardUsed=id=>PP[id].base+vis(id).filter(x=>x.sms).reduce((a,x)=>a+x.a,0);
+const deptUsed=()=>Object.values(USED0).reduce((a,x)=>a+x,0)+Object.keys(PP).flatMap(vis).filter(x=>!x.base).reduce((a,x)=>a+x.a,0);
+const pendAll=()=>Object.keys(PP).flatMap(vis).filter(x=>!x.s).length+1;
+const pct=(u,b)=>b?Math.round(u/b*100):0;
+const soon=(label,cls,msg)=>`<button class="${cls}" data-act="soon" data-msg="${esc(msg||'데모에서는 이 버튼의 동작을 생략했어요')}">${label}</button>`;
+
+function phone(title,body,bottom,o){o=o||{};
+ return `<div class="phone"><div class="screen"><i class="island"></i><div class="statusbar"><span>12:31</span><span class="sbi">${I.sb}</span></div>`+
+ (title!==null?`<div class="appbar">${o.back?`<button class="back" data-go="${o.back}" aria-label="뒤로">${I.back}</button>`:o.backAct?`<button class="back" data-act="${o.backAct}" aria-label="뒤로">${I.back}</button>`:''}<div class="t">${title}</div>${o.right||''}</div>`:'')+
+ `<div class="body">${body}</div>`+(bottom?`<div class="bottom">${bottom}</div>`:'')+(o.overlay||'')+
+ (o.sheet?`<div class="sheet"><div class="sheet-in">${o.sheet}</div></div>`:'')+`</div></div>`;}
+const etab=a=>`<nav class="tabbar">${[['s4','홈'],['s5','사용내역'],['s6','예산'],['','내 정보']].map(([g,t])=>g?`<button data-go="${g}" class="${g===a?'on':''}">${I[g]}<span>${t}</span></button>`:soon(I.me+'<span>'+t+'</span>','','내 정보 기능은 데모에서 생략되었습니다|실제 개발 때 만드는 기능: 비밀번호 변경, 알림함, 문자 설정 다시 보기')).join('')}</nav>`;
+function pc(menu,main,modal){
+ const M=[['s1','직원·카드'],['','부서'],['s2','예산·한도'],['s8','예산 현황'],['','승인내역 등록'],['s9','매입 대조'],['s10','월 마감'],['s11','운영 점검'],['','알림 설정']];
+ const msg={'부서':'부서 관리 기능은 데모에서 생략되었습니다|실제 개발 때 만드는 기능: 부서 추가·이름 변경, 부서장 지정','승인내역 등록':'승인내역 등록 기능은 데모에서 생략되었습니다|실제 개발 때 만드는 기능: 승인내역 엑셀 올리기, 중복 막기, 취소 연결','알림 설정':'알림 설정 기능은 데모에서 생략되었습니다|실제 개발 때 만드는 기능: 알림마다 받는 사람과 시각 정하기'};
+ const side=M.map(([g,t])=>g?`<button data-go="${g}" class="${menu===g?'on':''}">${t}</button>`:`<button class="off" data-act="soon" data-msg="${esc(msg[t])}">${t}</button>`).join('');
+ return `<div class="pc"><div class="pc-top"><i></i><i></i><i></i><div class="url">card.example.co.kr/admin</div></div><div class="admin"><div class="side"><div class="lg">${MARK('법인카드 관리')}</div>${side}<div class="me"><span class="av">수진</span><div><b>이수진</b>경영지원팀 · 관리자</div></div></div><div class="main">${main}</div>${modal||''}</div></div>`;}
+const roleSel=e=>`<select data-role="${e.id}" aria-label="${e.n} 권한">${['직원','부서장','관리자'].map(r=>`<option${(st.roles[e.id]||e.r)===r?' selected':''}>${r}</option>`).join('')}</select>`;
+function emps(){return [{id:'E1023',n:'이수진',d:'경영지원팀',p:'팀장',r:'관리자',c:'****-1102'}].concat(st.imp?IMP.filter(e=>!e.w):[]);}
+const setOk=id=>id==='E1023'||id==='E2041'||(id==='E2107'&&st.onb>=5)||['E2110','E2115'].includes(id);
+
+const R={
+s1(){
+ const list=emps();
+ const table=`<div class="panel"><div class="panel-h"><span>직원 ${list.length}명</span><span class="small muted" style="font-weight:400">권한은 이 칸에서 바로 바꿀 수 있어요</span></div><div class="scroll"><table><thead><tr><th>사번</th><th>이름</th><th>부서</th><th>직책</th><th>권한</th><th>카드</th><th>문자 설정</th></tr></thead><tbody>${list.map(e=>`<tr><td>${e.id}</td><td>${e.n}</td><td>${e.d}</td><td>${e.p}</td><td>${roleSel(e)}</td><td>${e.c}</td><td>${setOk(e.id)?'<span class="lbl ok">완료</span>':'<span class="lbl gr">대기</span>'}</td></tr>`).join('')}</tbody></table></div>`+
+ (st.imp?'':`<div class="pad"><div class="muted">아직 등록된 직원이 없어요. 엑셀로 한 번에 등록해 보세요.</div></div>`)+`</div>`;
+ const tree=`<div class="panel"><div class="panel-h">부서와 부서장</div><div class="pad small"><div>경영지원팀 · 부서장 없음</div><div>영업본부 · <b>${st.imp?'박준호':'미지정'}</b> <span class="muted">(맡은 부서: 영업본부, 영업1팀, 영업2팀)</span></div><div style="padding-left:14px">└ 영업1팀</div><div style="padding-left:14px">└ 영업2팀</div><div>개발팀 · <b>${st.imp?'오세훈':'미지정'}</b></div></div></div>`;
+ const log=st.log.length?`<div class="panel"><div class="panel-h">변경 이력</div><div class="pad log">${st.log.map(x=>`<span>${x}</span>`).join('')}</div></div>`:'';
+ const main=`<div class="hd"><h3>직원·카드 관리</h3><div class="acts2"><button class="btn sm" data-act="impOpen">엑셀 일괄 등록</button>${soon('양식 내려받기','btn sm line','양식 내려받기 기능은 데모에서 생략되었습니다|실제 개발 때 만드는 기능: 등록용 엑셀 양식 내려받기')}${soon('직원 한 명 추가','btn sm line','직원 한 명 추가 기능은 데모에서 생략되었습니다|실제 개발 때 만드는 기능: 직원 한 명씩 등록·수정')}</div></div>`+table+tree+log;
+ let modal='';
+ if(st.modal){const bad=IMP.filter(e=>e.w).length;
+  modal=`<div class="modal"><div class="modal-in"><div class="hd"><b style="font-size:16px">엑셀 미리보기 · 직원_카드_등록.xlsx</b><button class="btn sm ghost" data-act="impClose">닫기</button></div><div class="result wa">${IMP.length}행 중 ${bad}행에 경고가 있어요. 경고 행은 반영하지 않아요.</div><div class="scroll"><table><thead><tr><th>행</th><th>사번</th><th>이름</th><th>부서</th><th>권한</th><th>카드</th><th>확인 결과</th></tr></thead><tbody>${IMP.map((e,k)=>`<tr class="${e.w?'warn':''}"><td>${k+2}</td><td>${e.id}</td><td>${e.n}</td><td>${e.d}</td><td>${e.r}</td><td>${e.c}</td><td>${e.w?'<b style="color:var(--app-amber)">'+e.w+'</b>':'<span class="lbl ok">반영 가능</span>'}</td></tr>`).join('')}</tbody></table></div><div class="acts2"><button class="btn sm" data-act="impDo">경고 ${bad}행 빼고 ${IMP.length-bad}명 반영</button><button class="btn sm ghost" data-act="impClose">취소</button></div></div></div>`;}
+ return pc('s1',main,modal);},
+s2(){
+ const rows=SUBJ.filter(([s])=>BUD[s]).map(([s])=>{const c=st.chg.includes(s);return `<tr${c?' class="chg"':''}><td>${s}${c?' <span class="lbl ok">바뀜</span>':''}</td><td class="n"><input class="input" style="width:120px;padding:6px 8px;font-size:13px;text-align:right" value="${st.budDraft[s].toLocaleString('ko-KR')}" inputmode="numeric" aria-label="${s} 예산" data-bud="${s}"></td><td class="n">${won(USED0[s])}</td></tr>`;}).join('');
+ const main=`<div class="hd"><h3>예산·한도 설정 · 2026년 11월</h3><div class="acts2"><button class="btn sm" data-act="saveBud">저장</button>${soon('엑셀로 예산 등록','btn sm line','엑셀로 예산 등록 기능은 데모에서 생략되었습니다|실제 개발 때 만드는 기능: 예산을 엑셀로 한 번에 올리기')}</div></div>`+
+ `<div class="seg" style="max-width:520px">${['영업1팀','영업2팀','개발팀','경영지원팀'].map((d,k)=>k?soon(d,'','데모에서는 영업1팀만 볼 수 있습니다|실제로는 모든 부서를 같은 방식으로 정합니다.'):`<button class="on">${d}</button>`).join('')}</div>`+
+ `<div class="two"><div class="panel"><div class="panel-h">계정과목 예산 (영업1팀, 월)</div><div class="scroll"><table><thead><tr><th>계정과목</th><th class="n">예산</th><th class="n">이번 달 사용</th></tr></thead><tbody>${rows}</tbody></table></div></div>`+
+ `<div style="display:grid;gap:14px;align-content:start"><div class="panel"><div class="panel-h">카드 한도 (회사 내부 한도)</div><div class="scroll"><table><tbody><tr><td>김민지 · ****-3345</td><td class="n">3,000,000원</td></tr><tr><td>최도윤 · ****-3352</td><td class="n">2,000,000원</td></tr></tbody></table></div></div>`+
+ `<div class="panel"><div class="panel-h">경고 기준</div><div class="pad"><div class="small muted">남은 예산이 이 비율 아래로 떨어지면 빨간색으로 바뀌고 알림이 가요</div><div class="opts">${[10,20,30].map(v=>`<button class="opt${st.draftWarn===v?' on':''}" data-warn="${v}">남은 예산 ${v}% 이하</button>`).join('')}</div>${st.warn!==20||st.saved?`<div class="small muted">저장된 기준: 남은 예산 ${st.warn}% 이하</div>`:''}</div></div></div></div>`;
+ return pc('s2',main);},
+s3(){
+ if(st.who!=='E2107')return phone(null,`<div class="done"><div class="check">${I.check}</div><div style="font-size:20px;font-weight:700">${PP[st.who].n}님은 첫 설정을 마쳤어요</div><div class="muted">문자 전달이 이미 켜져 있어요.</div></div>`,`<div style="display:grid;gap:8px"><button class="btn" data-person="E2107">김민지로 첫 설정 보기</button><button class="btn ghost" data-go="s4">${PP[st.who].n}님 홈으로</button></div>`);
+ const n=st.onb,steps=`<div class="steps">${[1,2,3,4].map(k=>`<i class="${k<=n?'on':''}"></i>`).join('')}</div>`;
+ const head=(t,s)=>steps+`<div><div class="small muted">${Math.min(n,4)} / 4</div><div style="font-size:19px;font-weight:700">${t}</div>${s?`<div class="small muted">${s}</div>`:''}</div>`;
+ if(n===1)return phone(null,`<div style="padding-top:40px"><span class="appicon">${I.card.replace(/22/g,'32')}</span></div><div style="font-size:26px;font-weight:700;letter-spacing:-.03em;line-height:1.3">법인카드를 쓰면<br>내역이 저절로 올라와요</div><div class="muted" style="margin-top:-4px">회사에서 받은 사번과 임시 비밀번호로 로그인하세요</div><div><span class="flabel">사번</span><input class="input" value="E2107" aria-label="사번"></div><div><span class="flabel">임시 비밀번호</span><input class="input" type="password" value="temp1234" aria-label="임시 비밀번호"></div><div class="small muted">비밀번호를 5회 틀리면 계정이 잠겨요.</div>`,`<button class="btn" data-act="onb">로그인</button>`);
+ if(n===2)return phone('처음 설정',head('비밀번호 바꾸기','처음 로그인이라 새 비밀번호로 바꿔야 해요')+`<div><span class="flabel">새 비밀번호</span><input class="input" type="password" value="newpass!23" aria-label="새 비밀번호"></div><div><span class="flabel">한 번 더</span><input class="input" type="password" value="newpass!23" aria-label="새 비밀번호 확인"></div><div class="small muted">8자 이상, 영문·숫자·기호를 섞어 주세요.</div>`,`<button class="btn" data-act="onb">바꾸기</button>`);
+ if(n===3)return phone('처음 설정',head('홈 화면에 추가','앱처럼 쓰고 알림을 받으려면 꼭 필요해요')+`<div class="card" style="display:grid;gap:8px"><b>아이폰</b><div class="small">Safari 아래쪽 공유 버튼 → "홈 화면에 추가" → 추가</div><div class="small muted">아이폰은 홈 화면에 추가해야 알림을 받을 수 있어요.</div></div><div class="card" style="display:grid;gap:8px"><b>안드로이드</b><div class="small">Chrome 오른쪽 위 ⋮ → "홈 화면에 추가"</div></div>`,`<div style="display:grid;gap:8px"><button class="btn" data-act="onb">추가했어요 · 알림 허용하기</button></div>`);
+ if(n===4){const ios=st.os==='ios',a=st.o1,b=st.o2;
+  const flow=`<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px">${['카드 결제','내 휴대폰에 문자','앱에 자동 등록'].map((t,k)=>`${k?'<span class="muted">→</span>':''}<span class="lbl gr" style="font-size:12px;padding:4px 8px">${t}</span>`).join('')}</div>`;
+  const step=(no,t,sub,done,btn,act,dis)=>`<div class="card" style="display:grid;gap:8px${dis?';opacity:.5':''}"><div class="mt"><b>${no}. ${t}</b>${done?'<span class="lbl ok">완료</span>':''}</div><div class="small muted">${sub}</div>${done?'':`<button class="btn ${no===1?'':'line '}sm" data-act="${act}"${dis?' disabled':''} style="width:100%">${btn}</button>`}</div>`;
+  const s1=ios?step(1,'단축어 설치하기','회사에서 만든 단축어를 내 아이폰에 넣어요',a,'단축어 설치하기','o1',false):step(1,'전달 앱 설치하기','회사에서 안내한 문자 전달 앱을 설치해요',a,'전달 앱 설치하기','o1',false);
+  const s2=ios?step(2,'자동 실행 켜기','설치한 단축어가 신한카드 문자를 받으면 혼자 실행되게 켜요',b,'켰어요','o2',!a):step(2,'앱에서 연결 누르기','앱을 열고 "연결"을 누르면 내 계정과 자동으로 이어져요',b,'연결했어요','o2',!a);
+  const s3=`<div class="card" style="display:grid;gap:8px${a&&b?'':';opacity:.5'}"><div class="mt"><b>3. 잘 되는지 확인</b>${st.smsTest?'<span class="lbl ok">완료</span>':''}</div>${st.smsTest?'<div class="result ok">연결됐어요. 시험 문자 1건을 받았어요.</div>':`<div class="small muted">시험 문자를 보내 앱에 들어오는지 확인해요</div><button class="btn line sm" data-act="smsTest"${a&&b?'':' disabled'} style="width:100%">시험 문자 보내기</button>`}</div>`;
+  return phone('처음 설정',head('결제 문자 전달 켜기','카드를 쓰면 결제 문자가 앱으로 자동으로 넘어와요')+flow+`<div class="seg"><button class="${ios?'on':''}" data-os="ios">아이폰</button><button class="${ios?'':'on'}" data-os="android">안드로이드</button></div>`+s1+s2+s3,`<button class="btn" data-act="onb"${st.smsTest?'':' disabled'}>설정 마치기</button>`);}
+ return phone(null,`<div class="done"><div class="check">${I.check}</div><div style="font-size:20px;font-weight:700">준비가 끝났어요</div><div class="muted">이제 법인카드를 쓰면<br>내역이 저절로 올라와요.</div></div><div class="card small muted">관리자 화면에 "문자 전달 설정 완료"로 표시돼요.</div>`,`<button class="btn" data-go="s4">홈으로</button>`);},
+s4(){
+ const P=PP[st.who],mine=vis(st.who),pend=mine.filter(x=>!x.s).length,cu=cardUsed(st.who);
+ const row=x=>`<div class="tx" data-go="s5" data-tx="${x.id}" role="button" tabindex="0" style="cursor:pointer"><div><div class="m">${x.m}</div><div class="small muted">${x.tm} · 신한 ${P.card}</div></div><div style="text-align:right"><div class="amt">${won(x.a)}</div>${x.s?`<span class="lbl ok">${x.s}</span>`:'<span class="lbl wa">입력 전 · 눌러서 입력</span>'}</div></div>`;
+ const day=(d,label,empty)=>{const l=mine.filter(x=>x.d===d);return `<div><div class="mt"><b>${label}</b><span>${d==='11/26'?'11월 26일 (목)':'11월 25일 (수)'}</span></div>${l.length?l.map(row).join(''):`<div class="small muted" style="padding:8px 0">${empty}</div>`}</div>`;};
+ const body=`<div style="font-size:22px;font-weight:700;letter-spacing:-.03em;line-height:1.35;padding:4px 2px 2px">안녕하세요, ${P.n}님</div>`+
+ `<div class="card hero" style="display:grid;gap:8px"><div class="mt"><b>이번 달 내 카드</b><span>신한 ${P.card}</span></div><div class="mt"><span>남은 한도</span><span class="big" style="font-size:30px">${won(P.limit-cu)}</span></div><div class="bar"><i style="width:${pct(cu,P.limit)}%"></i></div><div class="mt"><span>사용 ${won(cu)}</span><span>한도 ${won(P.limit)}</span></div></div>`+
+ (pend?`<div class="result wa" data-go="s5" role="button" tabindex="0" style="cursor:pointer">입력하지 않은 내역 ${pend}건이 있어요 ›</div>`:'')+
+ day('11/26','오늘','오늘은 아직 결제 내역이 없어요')+day('11/25','어제','어제는 결제 내역이 없어요')+
+ `<div class="small muted">입력하지 않은 내역이 있으면 매일 아침 9시에 알려 드려요.</div>`;
+ const t=st.push?mine.find(x=>x.sms):null;
+ const push=t?`<div class="push" data-go="s5" data-tx="${t.id}" role="button" tabindex="0"><div class="ph"><span>법인카드 관리</span><span>지금</span></div><b>결제 내역이 등록됐어요</b><span>${t.m} ${won(t.a)} · 계정과목을 입력해 주세요</span></div>`:'';
+ return phone(MARK('법인카드'),body,etab('s4'),{overlay:push,right:soon(I.bell,'icon-btn','알림함 기능은 데모에서 생략되었습니다|실제 개발 때 만드는 기능: 등록 알림, 예산 경고, 입력 안내 모아 보기')});},
+s5(){
+ const P=PP[st.who],mine=vis(st.who),x=mine.find(t=>t.id===st.sel);
+ if(!x){
+  const F=[['all','전체'],['todo','입력 전'],['done','입력 완료']];
+  const list=mine.filter(t=>st.f5==='all'||(st.f5==='todo'?!t.s:!!t.s));
+  const body=`<div class="seg">${F.map(([k,t])=>`<button class="${st.f5===k?'on':''}" data-f5="${k}">${t} ${mine.filter(y=>k==='all'||(k==='todo'?!y.s:!!y.s)).length}</button>`).join('')}</div>`+
+  `<div class="card"><div class="mt"><span>이번 달 합계 (목록 기준)</span><span class="amt" style="color:var(--app-ink)">${won(list.reduce((a,t)=>a+t.a,0))}</span></div></div>`+
+  `<div>${list.length?list.map(t=>`<div class="tx" data-go="s5" data-tx="${t.id}" role="button" tabindex="0" style="cursor:pointer"><div><div class="m">${t.m}</div><div class="small muted">${t.d} ${t.tm}</div></div><div style="text-align:right"><div class="amt">${won(t.a)}</div>${t.s?`<span class="lbl ok">${t.s}</span>`:'<span class="lbl wa">입력 전</span>'}</div></div>`).join(''):'<div class="small muted" style="padding:10px 0">이 조건의 내역이 없어요</div>'}</div>`+
+  (st.got[st.who]?'':`<div class="small muted">4번 화면에서 "결제 문자 보내기"를 누르면 오늘 결제가 여기에 더해져요.</div>`);
+  return phone('사용내역 · '+P.n,body,etab('s5'));}
+ const dr=x.s||st.draft[x.id]||'',done=!!x.s;
+ const ppl=Object.values(PP).filter(p=>p.id!==st.who).map(p=>p.n).concat(['박준호']);
+ const body=`<div class="card" style="display:grid;gap:4px"><div class="mt"><span>11월 ${x.d.slice(3)}일 ${x.tm} · 신한 ${P.card}</span>${done?'<span class="lbl ok">입력 완료</span>':'<span class="lbl wa">입력 전</span>'}</div><div style="font-size:17px;font-weight:700">${x.m}</div><div class="big">${won(x.a)}</div><div class="small muted">${x.sms?'신한카드 결제 문자에서 자동 등록':'카드사 자료에서 등록'}</div></div>`+
+ `<div><span class="flabel">계정과목</span><div style="display:grid;gap:6px">${SUBJ.map(([s,d])=>`<button class="opt${dr===s?' on':''}" data-subj="${s}" style="display:flex;justify-content:space-between;border-radius:10px;text-align:left;padding:8px 11px"${done?' disabled':''}><span>${s}</span><span class="small muted">${d}</span></button>`).join('')}</div></div>`+
+ `<div><span class="flabel">함께 사용한 사람</span><div class="opts">${ppl.map(p=>`<button class="opt${st.withp.includes(p)?' on':''}" data-with="${p}"${done?' disabled':''}>${p}</button>`).join('')}${done?'':soon('+ 외부인','opt','외부인 추가 기능은 데모에서 생략되었습니다|실제 개발 때 만드는 기능: 함께 쓴 외부인 이름·회사 적기')}</div></div>`+
+ `<div class="small muted">적요와 이용 사유 칸은 데모에서 뺐어요.</div>`+
+ (done?`<div class="result ok">입력했어요. ${x.s} 남은 예산: ${won(BUD[x.s]-used(x.s))}</div>`:'');
+ return phone('내역 입력',body,done?`<div class="row" style="display:flex;gap:8px"><button class="btn ghost" data-act="selBack">목록으로</button><button class="btn" data-go="s6">예산 보기</button></div>`:`<button class="btn" data-act="enter"${dr?'':' disabled'}>입력 완료</button>`,{backAct:'selBack'});},
+s6(){
+ const P=PP[st.who],cu=cardUsed(st.who),pendA=vis(st.who).filter(x=>!x.s).reduce((a,x)=>a+x.a,0);
+ let body=`<div class="seg"><button class="${st.btab==='now'?'on':''}" data-btab="now">이번 달</button><button class="${st.btab==='rep'?'on':''}" data-btab="rep">리포트</button></div>`;
+ if(st.btab==='now'){
+  const rows=SUBJ.filter(([s])=>BUD[s]).map(([s])=>{const u=used(s),left=BUD[s]-u,lp=Math.round(left/BUD[s]*100),red=lp<=st.warn;
+   return `<div style="display:grid;gap:5px;padding:10px 0;border-bottom:1px solid var(--app-line)"><div class="mt"><b style="${red?'color:var(--app-red)':''}">${s}${red?' · 경고':''}</b><span class="amt" style="${red?'color:var(--app-red)':'color:var(--app-ink)'}">${left<0?won(-left)+' 초과':won(left)+' 남음'}</span></div><div class="bar ${red?'no':pct(u,BUD[s])>=70?'wa':''}"><i style="width:${Math.min(100,pct(u,BUD[s]))}%"></i></div><div class="mt"><span>사용 ${won(u)} / 예산 ${won(BUD[s])}</span><span>남은 ${lp}%</span></div></div>`;}).join('');
+  const reds=SUBJ.filter(([s])=>BUD[s]&&Math.round((BUD[s]-used(s))/BUD[s]*100)<=st.warn).map(([s])=>s);
+  body+=`<div class="card" style="display:grid;gap:8px"><div class="mt"><b>${P.n}님 카드 한도</b><span>신한 ${P.card}</span></div><div class="bar"><i style="width:${pct(cu,P.limit)}%"></i></div><div class="mt"><span>사용 ${won(cu)}</span><span>남은 ${won(P.limit-cu)}</span></div>${pendA?`<div class="small" style="color:var(--app-amber)">아직 분류하지 않은 ${won(pendA)}은 한도에만 들어가 있어요</div>`:''}</div>`+
+  (reds.length?`<div class="result no">${reds.join(', ')} 남은 예산이 ${st.warn}% 아래로 떨어졌어요. 알림을 보냈어요.</div>`:'')+
+  `<div><div class="mt"><b>영업1팀 계정과목 예산</b><span>경고 기준 ${st.warn}%</span></div>${rows}</div><div class="small muted">문자로 받은 금액이라, 월말 대조 뒤 조금 바뀔 수 있어요.</div>`;
+ }else{
+  const M=[['6월',1180000],['7월',1320000],['8월',990000],['9월',1250000],['10월',1236000],['11월',deptUsed()]],mx=1500000;
+  const last=1236000,cur=M[5][1],d=Math.round((cur-last)/last*100);
+  body+=`<div class="card" style="display:grid;gap:4px"><div class="mt"><b>영업1팀 이번 달 사용</b><span>지난달 대비</span></div><div class="mt"><span class="big" style="color:var(--app-ink)">${won(cur)}</span><span class="lbl ${d>0?'wa':'ok'}">${d>0?'+':''}${d}%</span></div></div>`+
+  `<div class="card"><div class="mt"><b>최근 6개월</b><span>만 원</span></div><div class="vbars">${M.map(([m,v],k)=>`<div class="${k===5?'on':''}"><span>${Math.round(v/10000)}</span><i style="height:${Math.round(v/mx*85)}%"></i><span>${m}</span></div>`).join('')}</div></div>`+
+  `<div class="card" style="display:grid;gap:6px"><div class="mt"><b>계정과목 비교</b><span>지난달 → 이번 달</span></div>${[['복리후생비',410000],['접대비',540000],['회의비',120000],['여비교통비',150000],['소모품비',16000]].map(([s,v])=>`<div class="mt"><span style="color:var(--app-ink)">${s}</span><span>${won(v)} → <b style="font-size:13px">${won(used(s))}</b></span></div>`).join('')}</div><div class="small muted">예시 숫자</div>`;}
+ return phone('예산 · '+P.n,body,etab('s6'));},
+s7(){
+ const TX=Object.keys(PP).flatMap(id=>vis(id).map(x=>({w:PP[id].n,t:'영업1팀',d:x.d+' '+x.tm,m:x.m,a:x.a,s:x.s}))).concat([{w:'정하은',t:'영업2팀',d:'11/26 10:05',m:'공유 회의실',a:54000,s:'회의비'},{w:'한지우',t:'영업2팀',d:'11/25 13:10',m:'문구 마켓',a:23500,s:''},{w:'정하은',t:'영업2팀',d:'11/24 21:30',m:'한우 정원',a:132000,s:'접대비'}]).sort((a,b)=>a.d<b.d?1:-1);
+ const list=TX.filter(x=>st.dept==='all'||x.t===st.dept);
+ const pend=list.filter(x=>!x.s).length;
+ const body=`<div><div style="font-size:17px;font-weight:700">박준호 · 영업본부장</div><div class="small muted">맡은 부서: 영업본부, 영업1팀, 영업2팀</div></div><div class="seg">${[['all','전체'],['영업1팀','영업1팀'],['영업2팀','영업2팀']].map(([k,t])=>`<button class="${st.dept===k?'on':''}" data-dept="${k}">${t}</button>`).join('')}</div>`+
+ `<div class="card"><div class="mt"><span>이번 주 합계</span><span class="amt" style="color:var(--app-ink)">${won(list.reduce((a,x)=>a+x.a,0))}</span></div><div class="mt"><span>입력하지 않은 내역</span><span class="lbl ${pend?'wa':'ok'}">${pend}건</span></div></div>`+
+ `<div>${list.map((x,k)=>`<div class="tx" data-sheet="${TX.indexOf(x)}" role="button" tabindex="0" style="cursor:pointer"><div><div class="m">${x.m}</div><div class="small muted">${x.d} · ${x.w} (${x.t})</div></div><div style="text-align:right"><div class="amt">${won(x.a)}</div>${x.s?`<span class="lbl ok">${x.s}</span>`:'<span class="lbl wa">입력 전</span>'}</div></div>`).join('')}</div><div class="small muted">예시 데이터</div>`;
+ let sheet='';
+ if(st.sheet!==null&&TX[st.sheet]){const x=TX[st.sheet];sheet=`<div class="mt"><b style="font-size:17px">${x.m}</b><button class="btn sm ghost" data-act="sheetClose">닫기</button></div><dl class="kv"><dt>쓴 사람</dt><dd>${x.w} (${x.t})</dd><dt>결제</dt><dd>${x.d} · ${won(x.a)}</dd><dt>계정과목</dt><dd>${x.s||'아직 입력 전'}</dd></dl><div class="result wa">부서장은 볼 수만 있어요. 수정은 카드를 쓴 본인만 할 수 있어요.</div>`;}
+ return phone('부서 사용내역',body,`<nav class="tabbar"><button class="on">${I.s5}<span>부서 내역</span></button>${soon(I.card+'<span>내 카드</span>','','내 카드 화면은 데모에서 생략되었습니다|실제로는 직원 화면과 같은 방식으로 입력합니다.')}${soon(I.me+'<span>내 정보</span>','','내 정보 기능은 데모에서 생략되었습니다|실제 개발 때 만드는 기능: 비밀번호 변경, 알림함')}</nav>`,{sheet});},
+s8(){
+ const one=deptUsed();
+ const b1=Object.values(BUD).reduce((a,x)=>a+x,0);const D=[['영업1팀',b1,one,1],['영업2팀',2500000,2310000,1],['개발팀',1500000,1140000,0],['경영지원팀',1000000,412000,0]];
+ const stat=r=>r<70?['양호','ok']:r<90?['주의','wa']:['위험','no'];
+ const rows=[['영업본부 (합계)',b1+2500000,one+2310000,0,1]].concat(D).map(([n,b,u,sub,top])=>({n,b,u,r:pct(u,b),sub,top}));
+ const show=rows.filter(x=>!st.f8||stat(x.r)[0]===st.f8);
+ const tot=D.reduce((a,x)=>a+x[1],0),tu=D.reduce((a,x)=>a+x[2],0);
+ const cnt=k=>D.filter(x=>stat(pct(x[2],x[1]))[0]===k).length;
+ const main=`<div class="hd"><h3>전사 예산 현황 · 2026년 11월</h3><div class="acts2">${soon('사용내역 엑셀 내려받기','btn sm line','엑셀 내려받기 기능은 데모에서 생략되었습니다|실제 개발 때 만드는 기능: 기간·부서·카드별 엑셀 내려받기')}</div></div>`+
+ `<div class="stats"><button class="stat" data-f8=""><div class="v">${pct(tu,tot)}%</div><div class="k">전사 사용률 · ${won(tu)}</div></button>${[['양호',''],['주의','wa'],['위험','no']].map(([k,c])=>`<button class="stat ${c}${st.f8===k?' on':''}" data-f8="${k}"><div class="v">${cnt(k)}</div><div class="k">${k} 부서</div></button>`).join('')}</div>`+
+ `<div class="panel"><div class="panel-h"><span>부서별 예산${st.f8?' · '+st.f8+'만 보기':''}</span><span class="small muted" style="font-weight:400">문자로 받은 금액 기준 · 양호 70% 아래, 주의 90%까지, 위험 그 위</span></div><div class="scroll"><table><thead><tr><th>부서</th><th class="n">배정</th><th class="n">사용</th><th class="n">잔여</th><th style="width:16%">사용률</th><th>상태</th></tr></thead><tbody>${show.map(x=>{const s=stat(x.r);return `<tr><td style="${x.sub?'padding-left:26px':''}${x.top?';font-weight:700':''}">${x.sub?'└ ':''}${x.n}</td><td class="n">${won(x.b)}</td><td class="n">${won(x.u)}</td><td class="n">${won(x.b-x.u)}</td><td><div class="bar ${s[1]==='ok'?'':s[1]}"><i style="width:${Math.min(100,x.r)}%"></i></div><span class="small muted">${x.r}%</span></td><td><span class="lbl ${s[1]}">${s[0]}</span></td></tr>`;}).join('')}</tbody></table></div></div><div class="small muted">예시 숫자</div>`;
+ return pc('s8',main);},
+s9(){
+ const g=st.rc;
+ if(!g.up)return pc('s9',`<div class="hd"><h3>매입 대조 · 2026년 11월</h3></div><div class="panel"><div class="pad"><div>카드사에서 내려받은 11월 매입 엑셀을 올리면, 앱에 쌓인 결제와 짝을 맞춰 드려요.</div><div class="small muted">맞춰 보는 순서: 승인번호 → 시각 → 금액 → 가맹점</div><div><button class="btn sm" data-act="rcUp">11월 매입 엑셀 올리기</button></div></div></div>`);
+ const G=[['ok','자동으로 맞춤','1,482건','승인번호와 금액이 모두 맞아요','한 번에 확정',''],
+  ['diff','금액이 다름','4건','해외 결제 3건, 일부 취소 1건 · 카드사 금액으로 확정해요','카드사 금액으로 확정',`<div class="scroll"><table><thead><tr><th>날짜</th><th>쓴 사람</th><th>가맹점</th><th class="n">문자 금액</th><th class="n">카드사 금액</th></tr></thead><tbody><tr><td>11/12</td><td>윤서연</td><td>해외 클라우드 서비스</td><td class="n">USD 84.00</td><td class="n">118,230원</td></tr><tr><td>11/19</td><td>정하은</td><td>문구 마켓</td><td class="n">42,000원</td><td class="n">31,000원</td></tr></tbody></table></div>`],
+  ['card','카드사에만 있음 (앱에 없음)','9건','문자가 오지 않는 하이패스 6건, 해외 결제 3건 · 앱에 등록하고 쓴 사람에게 입력 요청을 보내요','앱에 등록하고 입력 요청',''],
+  ['app','앱에만 있음 (카드사 자료에 아직 없음)','5건','결제는 됐지만 카드사 자료에 아직 안 올라온 건 · 다음 달로 넘겨요','다음 달로 넘기기','']];
+ const done=G.every(x=>g[x[0]]);
+ const main=`<div class="hd"><h3>매입 대조 · 2026년 11월</h3><span class="small muted">매입_11월.xlsx · 카드사 1,495건 / 앱 1,491건</span></div>`+
+ `<div class="panel">${G.map(([k,t,n,d,b,extra])=>`<div class="grp"><div class="gh"><div><b>${t}</b> <span class="lbl ${k==='ok'?'ok':k==='app'?'gr':'wa'}">${n}</span><div class="small muted">${d}</div></div>${g[k]?'<span class="lbl ok">확인함</span>':`<button class="btn sm" data-rc="${k}">${b}</button>`}</div>${extra}</div>`).join('')}</div>`+
+ (done?`<div class="result ok">11월 대조를 마쳤어요. 카드사 금액으로 확정했고, 입력 요청 9건을 보냈어요. <button class="btn sm" data-go="s10" style="margin-left:8px">월 마감으로</button></div>`:'')+`<div class="small muted">예시 숫자</div>`;
+ return pc('s9',main);},
+s10(){
+ const rcDone=['ok','diff','card','app'].every(k=>st.rc[k]);
+ const depts=['경영지원팀','영업1팀','영업2팀','개발팀'];
+ let main=`<div class="hd"><h3>월 마감 · 2026년 11월</h3>${st.closed?'<span class="lbl no">11월 마감됨 · 수정·등록 잠김</span>':''}</div>`;
+ if(!st.closed){
+  main+=`<div class="panel"><div class="panel-h">마감 전 확인</div><div class="pad"><div class="mt"><span style="color:var(--app-ink)">매입 대조</span>${rcDone?'<span class="lbl ok">완료</span>':'<span class="lbl wa">아직 안 끝남 · 9번 화면에서 확인</span>'}</div><div class="mt"><span style="color:var(--app-ink)">입력하지 않은 내역</span><span class="lbl wa">${pendAll()}건</span></div><div class="small muted">입력 안 한 건이 있어도 마감할 수 있어요. 마감하면 그 달 내역은 고칠 수 없어요.</div><div class="acts2"><button class="btn sm" data-act="close"${rcDone?'':' disabled'}>11월 전사 마감</button>${soon('입력 요청 보내기','btn sm line','입력 요청 보내기 기능은 데모에서 생략되었습니다|실제 개발 때 만드는 기능: 입력 안 한 직원에게 한 번에 알림')}</div></div></div>`;
+ }else{
+  main+=`<div class="panel"><div class="panel-h">부서별 상태</div><div class="scroll"><table><thead><tr><th>부서</th><th>상태</th><th></th></tr></thead><tbody>${depts.map(d=>{const un=st.unlock===d;return `<tr><td>${d}</td><td>${un?'<span class="lbl wa">해제됨 · 고칠 수 있음</span>':'<span class="lbl gr">마감</span>'}</td><td style="text-align:right">${un?`<button class="btn sm" data-act="relock">다시 마감</button>`:st.unlock?'':`<button class="btn sm line" data-unl="${d}">해제</button>`}</td></tr>`+(st.unlockOpen===d?`<tr><td colspan="3"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><select id="ur" class="input" style="width:auto;font-size:13px;padding:6px 8px" aria-label="해제 사유"><option>매입에만 있던 건 입력</option><option>계정과목 잘못 입력</option><option>부서 이동 반영</option></select><button class="btn sm" data-act="unlockDo">사유 남기고 해제</button><button class="btn sm ghost" data-act="unlockCancel">취소</button></div></td></tr>`:'');}).join('')}</tbody></table></div></div>`;}
+ main+=`<div class="panel"><div class="panel-h">마감 이력</div><div class="pad log">${st.clog.length?st.clog.map(x=>`<span>${x}</span>`).join(''):'<span>아직 기록이 없어요</span>'}</div></div>`;
+ return pc('s10',main);},
+s11(){
+ const R7=[['11/20',98.4],['11/21',99.1],['11/22',97.6],['11/23',99.5],['11/24',98.9],['11/25',99.2],['11/26',99.3]];
+ const miss=[['한지우','영업2팀','안드로이드','11/22'],['윤서연','개발팀','아이폰','11/21']];
+ const main=`<div class="hd"><h3>운영 점검</h3><span class="small muted">알림 기준: 하루 성공률 95% 아래</span></div>`+
+ `<div class="stats"><div class="stat"><div class="v">99.3%</div><div class="k">오늘 문자 읽기 성공률</div></div><div class="stat"><div class="v">${st.reparsed?0:2}</div><div class="k">읽지 못한 문자</div></div><div class="stat"><div class="v">14</div><div class="k">두 번 온 문자 막음 (이번 달)</div></div><div class="stat"><div class="v">6</div><div class="k">취소를 원래 결제에 연결</div></div></div>`+
+ `<div class="two"><div class="panel"><div class="panel-h">최근 7일 문자 읽기 성공률</div><div class="pad"><div class="vbars" style="height:130px">${R7.map(([d,v],k)=>`<div class="${k===6?'on':''}"><span>${v}</span><i style="height:${Math.round((v-90)/10*80)}%"></i><span>${d}</span></div>`).join('')}</div></div></div>`+
+ `<div class="panel"><div class="panel-h">3일 넘게 문자가 들어오지 않은 직원</div><div class="pad">${miss.map(([n,d,os,last])=>`<div class="mt"><span style="color:var(--app-ink)"><b style="font-size:13px">${n}</b> · ${d} · ${os}<br><span class="small muted">마지막 수신 ${last}</span></span>${st.resent[n]?'<span class="lbl ok">안내 보냄</span>':`<button class="btn sm line" data-resend="${n}">설정 안내 다시 보내기</button>`}</div>`).join('')}<div class="small muted">휴가 중이거나 카드를 쓰지 않았을 수도 있어요.</div></div></div></div>`+
+ `<div class="panel"><div class="panel-h">읽지 못한 문자</div><div class="pad">${[['11/26 09:14','김*지','[신한카드] 승인 김*지 3,300원 (일시불) 11/26 09:14 무인카페 오늘'],['11/25 18:02','정*은','[신한카드] 해외승인 정*은 USD 12.99 11/25 18:02 ONLINE SERVICE']].map(([t,w,raw])=>`<div style="display:grid;gap:4px;padding-bottom:8px;border-bottom:1px solid var(--app-line)"><div class="mt"><span>${t} · ${w}</span>${st.reparsed?'<span class="lbl ok">다시 읽음 · 등록 완료</span>':'<span class="lbl no">읽기 실패</span>'}</div><code class="small" style="overflow-wrap:anywhere">${raw}</code></div>`).join('')}${st.reparsed?'':'<div><button class="btn sm" data-act="reparse">읽는 규칙 고친 뒤 다시 읽기</button></div>'}<div class="small muted">문자 예시 · 받은 문자를 그대로 보관해 두어서 나중에 다시 읽을 수 있어요</div></div></div>`;
+ return pc('s11',main);}
+};
+
+function renderSpec(){
+ const s=S[st.i],a=ACTS.find(x=>x[0]===s.act)[1];
+ const btns=typeof s.btns==='function'?s.btns():s.btns;
+ const rx=st.got[st.who]?st.tx.find(x=>x.p===st.who&&x.sms):null;const raw=s.id==='s4'&&rx?`<div class="raw"><b>받은 문자 (예시)</b><code>${rx.raw}</code><b>읽어 낸 내용</b><span>승인 · ${won(rx.a)} · ${rx.d} ${rx.tm} · 카드 ${PP[st.who].card} → ${PP[st.who].n}</span></div>`:'';
+ const sec=(t,cls,items)=>items.length?`<section><h2>${t}</h2><div class="box ${cls}"><ul>${items.map(x=>`<li>${/[?？]$/.test(x.trim())?'<span class="qb">함께 정해요</span>':''}${x}</li>`).join('')}</ul></div></section>`:'';
+ $('#spec').innerHTML=`<div class="eyebrow"><span class="pill a">${a}</span><span class="pill b">${WHO[s.who]}</span><span>${st.i+1} / ${S.length}</span></div><h1>${s.name}</h1><p class="lead">${s.lead}</p>`+
+ `<div class="try"><div>${s.tryit}</div>${btns?`<div class="trybtns">${btns.map(b=>`<button class="trybtn" data-act="${b[0]}">${b[1]}</button>`).join('')}</div>`:''}${raw}</div>`+
+ `<section><h2>화면 설명</h2><ul class="req">${s.req.map(x=>`<li>${x}</li>`).join('')}</ul>${s.add.length?`<div><div class="addh">당사가 더한 것</div><ul class="add">${s.add.map(x=>`<li>${x}</li>`).join('')}</ul></div>`:''}</section>`+
+ sec('정책 · 함께 정할 것','p',s.policy)+sec('우려사항','w',s.concern)+
+ (s.exp.length?`<section><h2>우리의 경험</h2><div class="exp">${s.exp.map(([n,t])=>`<div><b>${n}</b>${t}</div>`).join('')}</div></section>`:'')+
+ `<section class="foot">이 데모는 화면 시안입니다. 알림함, 비밀번호 변경, 승인취소 관리, 부서 관리, 알림 설정 화면은 같은 방식으로 만들고 여기서는 뺐습니다. 새로고침하면 처음으로 돌아갑니다.</section>`;}
+function renderNav(){
+ const s=S[st.i];
+ $('#acts').innerHTML=ACTS.map(([k,t])=>`<button role="tab" data-actgo="${k}" aria-selected="${k===s.act}">${t.replace(/^(\d)단계 · /,'<i>$1</i>')}</button>`).join('');
+ $('#scn').innerHTML='<b>시나리오</b>'+ACTS.find(x=>x[0]===s.act)[2];
+ $('#cast').innerHTML=cast();
+ $('#nav').innerHTML=S.map((x,i)=>x.act===s.act?`<button class="chip" data-nav="${i}" aria-current="${i===st.i}"><b>${i+1}</b>${x.name}<span class="w">${x.who==='admin'?'PC':'휴대폰'}</span></button>`:'').join('');
+ $('#count').textContent=(st.i+1)+' / '+S.length;
+ $('#prev').disabled=st.i===0;$('#next').disabled=st.i===S.length-1;}
+let lastId='';
+function render(){
+ const s=S[st.i];
+ const old=document.querySelector('#stage .body');const keep=lastId===s.id&&old?old.scrollTop:0;
+ $('#stage').innerHTML=R[s.id]();
+ const now=document.querySelector('#stage .body');if(now)now.scrollTop=keep;
+ if(lastId!==s.id){const dv=$('#stage');dv.classList.remove('enter');void dv.offsetWidth;dv.classList.add('enter');clearTimeout(window.__en);window.__en=setTimeout(()=>dv.classList.remove('enter'),420);}
+ lastId=s.id;renderNav();renderSpec();placeToast();
+ try{if(location.hash!=='#'+s.id)history.replaceState(null,'','#'+s.id);}catch(e){}}
+function placeToast(){document.querySelectorAll('#stage .toast').forEach(x=>x.remove());if(!st.flash)return;const host=document.querySelector('#stage .admin')||document.querySelector('#stage .screen');if(host)host.insertAdjacentHTML('beforeend',`<div class="toast"><span class="ti">i</span><div>${st.flash}</div><button class="tx-x" data-act="flashClose" aria-label="알림 닫기">×</button></div>`);}
+function flash(m,noRender){st.flash=m;noRender?placeToast():render();clearTimeout(flashT);flashT=setTimeout(()=>{st.flash='';placeToast();},3600);}
+function catchUp(i){const n=[];
+ if(i>=1&&!st.imp){st.imp=true;st.log.push('11/02 10:14 이수진 · 엑셀로 7명 등록 (경고 2행 제외)');n.push('1번 직원·카드 등록');}
+ if(i>=3&&st.onb<5){st.onb=5;st.o1=st.o2=st.smsTest=true;n.push('3번 김민지 첫 설정');}
+ const k2=st.tx.find(x=>x.id==='k2');if(i>=7&&!k2.s){st.got.E2107=true;k2.s='복리후생비';n.push('2단계 김민지 결제와 입력');}
+ return n;}
+function go(id){const i=S.findIndex(x=>x.id===id);if(i<0)return;st.sheet=null;st.modal=false;st.flash='';clearTimeout(flashT);const n=catchUp(i);st.i=i;render();window.scrollTo({top:0});if(n.length)flash('<b>앞 단계를 마친 상태로 이어서 보여 드려요</b>'+n.join(', ')+'을 끝낸 것으로 맞췄어요.',true);}
+function cast(){
+ const role=(id,r)=>st.roles[id]||r;const reg=st.imp,cur=S[st.i].id,emp=['s3','s4','s5','s6'].includes(cur);
+ const stat=id=>{const P=PP[id],v=vis(id),pend=v.filter(x=>!x.s).length,setup=id==='E2107'?st.onb>=5:true;
+  if(st.i<3)return ['카드 '+P.card+' · 한도 '+won(P.limit),setup?'문자 설정 완료':'문자 설정 전'];
+  return ['남은 한도 '+won(P.limit-cardUsed(id)),pend?'입력 안 한 내역 '+pend+'건':'모두 입력 완료'];};
+ const P=[
+  {id:'E2107',n:'김민지',t:'영업1팀',r:'직원',on:emp&&st.who==='E2107',s:reg?stat('E2107'):['등록 전']},
+  {id:'E2110',n:'최도윤',t:'영업1팀',r:'직원',on:emp&&st.who==='E2110',s:reg?stat('E2110'):['등록 전']},
+  {id:'E2041',n:'박준호',t:'영업본부',r:'부서장',on:cur==='s7',s:reg?['영업1팀·영업2팀 내역 조회']:['등록 전']}];
+ return '<span class="cast-l">등장인물<br><span style="font-size:11px">눌러서 바꿔 보기</span></span>'+P.map(p=>`<button type="button" class="who${p.on?' on':''}" data-person="${p.id}" aria-pressed="${p.on}"><span class="av">${p.n.slice(1)}</span><span class="wt"><b>${p.n}</b><span class="r">${p.t}${reg?' · '+role(p.id,p.r):''}</span><span class="st" style="display:block">${p.s.join(' · ')}</span></span></button>`).join('')+(st.closed?'<div class="who"><span class="av">'+I.lock.replace(/22/g,'16')+'</span><span class="wt"><b>11월</b><span class="r">마감 완료</span><span class="st" style="display:block">고칠 수 없게 잠김</span></span></div>':'');}
+const T=()=>'11/30 18:'+String(10+st.clog.length*3).padStart(2,'0');
+
+document.addEventListener('click',e=>{
+ const t=e.target.closest('button,[data-go],[data-sheet]');if(!t||t.disabled)return;const d=t.dataset;
+ if(d.go){if(d.go==='s5'){st.sel=d.tx||null;st.withp=[];}go(d.go);return;}
+ if(d.nav!==undefined){go(S[+d.nav].id);return;}
+ if(d.actgo){go(S.find(x=>x.act===d.actgo).id);return;}
+ if(d.warn){st.draftWarn=+d.warn;render();return;}
+ if(d.os){if(st.os!==d.os){st.os=d.os;st.o1=false;st.o2=false;st.smsTest=false;}render();return;}
+ if(d.subj){st.draft[st.sel]=d.subj;render();return;}
+ if(d.f5){st.f5=d.f5;render();return;}
+ if(d.person){const id=d.person;if(id==='E2041'){go('s7');return;}st.who=id;st.sel=null;st.push=false;st.withp=[];const cur=S[st.i].id;if(!['s3','s4','s5','s6'].includes(cur))go('s4');else render();flash('<b>'+PP[id].n+'님 화면으로 바꿨어요</b>카드 '+PP[id].card+'의 내역과 한도로 보여요.',true);return;}
+ if(d.with){const k=st.withp.indexOf(d.with);k>=0?st.withp.splice(k,1):st.withp.push(d.with);render();return;}
+ if(d.btab){st.btab=d.btab;render();return;}
+ if(d.dept){st.dept=d.dept;render();return;}
+ if(d.sheet!==undefined){st.sheet=+d.sheet;render();return;}
+ if(d.f8!==undefined){st.f8=st.f8===d.f8?'':d.f8;render();return;}
+ if(d.rc){st.rc[d.rc]=true;render();return;}
+ if(d.unl){st.unlockOpen=d.unl;render();return;}
+ if(d.resend){st.resent[d.resend]=true;flash(d.resend+'님께 설정 안내를 다시 보냈어요');return;}
+ switch(d.act){
+  case 'flashClose':st.flash='';clearTimeout(flashT);placeToast();break;
+  case 'soon':{const [h,b]=String(d.msg).split('|');flash(b?`<b>${esc(h)}</b>${esc(b)}`:esc(h));break;}
+  case 'impOpen':st.modal=true;render();break;
+  case 'impClose':st.modal=false;render();break;
+  case 'impDo':st.modal=false;st.imp=true;st.log.push('11/02 10:14 이수진 · 엑셀로 7명 등록 (경고 2행 제외)');flash('7명을 등록했어요. 경고가 있던 2행은 반영하지 않았어요');break;
+  case 'saveBud':{const ch=Object.keys(st.budDraft).filter(k=>st.budDraft[k]!==BUD[k]&&st.budDraft[k]>0);ch.forEach(k=>BUD[k]=st.budDraft[k]);Object.keys(st.budDraft).forEach(k=>st.budDraft[k]=BUD[k]);st.chg=ch;const wc=st.warn!==st.draftWarn;st.warn=st.draftWarn;st.saved=true;flash(ch.length||wc?'<b>저장했어요</b>'+(ch.length?ch.map(k=>k+' '+won(BUD[k])).join(', ')+'. ':'')+'6번 예산 화면에 바로 반영돼요.':'바뀐 값이 없어요');break;}
+  case 'onb':st.onb++;render();break;
+  case 'smsTest':st.smsTest=true;render();break;
+  case 'o1':st.o1=true;render();break;
+  case 'o2':st.o2=true;render();break;
+  case 'sms':if(st.got[st.who]){flash('이미 오늘 결제 문자를 받았어요. 홈의 내역을 눌러 입력해 보세요');break;}if(S[st.i].id!=='s4')st.i=S.findIndex(x=>x.id==='s4');st.got[st.who]=true;st.push=true;render();setTimeout(()=>{st.push=false;render();},4000);break;
+  case 'enter':{const x=st.tx.find(t=>t.id===st.sel);if(x&&st.draft[x.id]){x.s=st.draft[x.id];}render();break;}
+  case 'selBack':st.sel=null;render();break;
+  case 'sheetClose':st.sheet=null;render();break;
+  case 'rcUp':st.rc.up=true;render();break;
+  case 'rcAll':st.rc={up:true,ok:true,diff:true,card:true,app:true};render();break;
+  case 'close':st.closed=true;st.clog.push(T()+' 이수진 · 11월 전사 마감');render();break;
+  case 'unlockCancel':st.unlockOpen=null;render();break;
+  case 'unlockDo':{const r=document.getElementById('ur');st.unlock=st.unlockOpen;st.clog.push(T()+' 이수진 · '+st.unlock+' 마감 해제 (사유: '+(r?r.value:'')+')');st.unlockOpen=null;render();break;}
+  case 'relock':st.clog.push(T()+' 이수진 · '+st.unlock+' 다시 마감');st.unlock=null;render();break;
+  case 'reparse':st.reparsed=true;flash('읽는 규칙을 고친 뒤 2건을 다시 읽어 등록했어요');break;
+ }
+});
+document.addEventListener('focusin',e=>{if(e.target.dataset&&e.target.dataset.bud)flash('<b>예산 바꾸기</b>숫자를 고치고 위의 "저장"을 누르면 6번 예산 화면에 반영돼요.',true);});
+document.addEventListener('input',e=>{const k=e.target.dataset&&e.target.dataset.bud;if(k){const n=parseInt(e.target.value.replace(/[^0-9]/g,''),10);st.budDraft[k]=isNaN(n)?0:n;}});
+document.addEventListener('focusout',e=>{const k=e.target.dataset&&e.target.dataset.bud;if(k)e.target.value=st.budDraft[k].toLocaleString('ko-KR');});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.dataset&&e.target.dataset.bud){e.preventDefault();e.target.blur();const b=document.querySelector('[data-act=saveBud]');if(b)b.click();}});
+document.addEventListener('change',e=>{const d=e.target.dataset||{};if(d.role){const emp=emps().find(x=>x.id===d.role);const was=st.roles[d.role]||emp.r;st.roles[d.role]=e.target.value;st.log.push('11/02 10:'+String(20+st.log.length).padStart(2,'0')+' 이수진 · '+emp.n+' 권한 '+was+' → '+e.target.value);flash(emp.n+'님 권한을 '+e.target.value+'(으)로 바꿨어요. 변경 이력에 남아요');}});
+document.addEventListener('keydown',e=>{const t=e.target;if((e.key==='Enter'||e.key===' ')&&t.matches&&t.matches('[role=button]')){e.preventDefault();t.click();}});
+$('#prev').addEventListener('click',()=>{if(st.i>0)go(S[st.i-1].id);});
+$('#next').addEventListener('click',()=>{if(st.i<S.length-1)go(S[st.i+1].id);});
+$('#reset').addEventListener('click',()=>{try{history.replaceState(null,'','#s1');}catch(e){}location.reload();});
+window.addEventListener('hashchange',()=>{const id=location.hash.slice(1);if(S[st.i].id!==id&&S.some(x=>x.id===id))go(id);});
+const h=document.querySelector('header.top');const setH=()=>document.documentElement.style.setProperty('--hdr',h.offsetHeight+'px');setH();window.addEventListener('resize',setH);
+const start=S.findIndex(x=>x.id===location.hash.slice(1));if(start>=0){st.i=start;catchUp(start);}
+render();
+}
+</script>
+
+
+<script>
+/* 방문 추적: /v/<이름> 링크로 들어온 방문을 /api/visit 에 한 번 보냅니다 */
+(function(){try{
+ var m=location.pathname.match(/^\/v\/([^\/?#]+)/);
+ var who=m?decodeURIComponent(m[1]):(new URLSearchParams(location.search).get('u')||'');
+ var key='visit:'+who;
+ if(sessionStorage.getItem(key))return;sessionStorage.setItem(key,'1');
+ var body=JSON.stringify({who:who,path:location.pathname+location.hash,ref:document.referrer||'',lang:navigator.language||'',screen:screen.width+'x'+screen.height});
+ if(navigator.sendBeacon)navigator.sendBeacon('/api/visit',new Blob([body],{type:'application/json'}));
+ else fetch('/api/visit',{method:'POST',headers:{'Content-Type':'application/json'},body:body,keepalive:true});
+}catch(e){}})();
+</script>
+<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</body></html>
